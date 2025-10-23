@@ -5,7 +5,8 @@
     "scripts": {
         "dev": "firebase emulators:start --only hosting,functions",
         "serve": "firebase emulators:start --only hosting,functions",
-        "deploy": "firebase deploy",
+        "deploy": "firebase deploy --only hosting,functions",
+        "validate": "node ./tools/validate-setup.js",
         "postinstall": "echo 'Postinstall complete'"
     },
     "dependencies": {
