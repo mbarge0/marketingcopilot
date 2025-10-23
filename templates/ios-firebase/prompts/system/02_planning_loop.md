@@ -25,7 +25,7 @@ Please:
 4. Update risk assessment and mitigation strategies.  
 5. Perform Regression Planning:
    - Identify which previously completed phases could be impacted by this phase’s work.  
-   - Reference `/docs/operations/regression/00_master_regression_manifest.md` to determine relevant dependencies.  
+   - Reference `/docs/operations/regression_manifest.md` to determine relevant dependencies.  
    - List specific features, flows, or modules that must remain functional after this phase.  
    - Add regression checks to this phase’s debugging plan.
 6. Reconfirm success criteria for the remainder of the phase.  
@@ -128,7 +128,7 @@ It should include the following sections:
    - Previously built systems this phase may affect  
    - Regression risks identified  
    - Features that must remain stable post-phase  
-   - Reference entries from `/docs/operations/regression/00_master_regression_manifest.md`
+   - Reference entries from `/docs/operations/regression_manifest.md`
 
 7. **Updated Success Criteria**
    - What “done” looks like after this replan  

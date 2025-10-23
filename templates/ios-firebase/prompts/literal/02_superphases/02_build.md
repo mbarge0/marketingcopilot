@@ -28,5 +28,5 @@ Store the resulting report under `/docs/operations/phases/phase-XX-02-build.md`.
 **Supporting documentation:**   
 - Dev Checklist: `/docs/foundation/dev_checklist.md`  
 - UI Guidelines: `/docs/operations/ui-guidelines.md`  
-- Regression manifest: `/docs/operations/regression/00_master_regression_manifest.md`
+- Regression manifest: `/docs/operations/regression_manifest.md`
 - Coding Rules: `/docs/operations/coding_rules.md`

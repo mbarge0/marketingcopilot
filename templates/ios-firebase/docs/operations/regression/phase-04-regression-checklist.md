@@ -6,7 +6,7 @@ Date: 2025-10-22
 Ensure Supermodules A–B remain fully functional after introducing AI Assistant and Smart Replies. Validate C-specific resilience.
 
 ## References
-- Master Manifest: `/docs/operations/regression/00_master_regression_manifest.md`
+- Master Manifest: `/docs/operations/regression_manifest.md`
 - Plan: `/docs/operations/phases/recent/phase-04-01-plan.md`
 - Build: `/docs/operations/phases/recent/phase-04-02-build.md`
 

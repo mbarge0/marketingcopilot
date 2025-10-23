@@ -6,7 +6,7 @@ Ask clarifying questions about the product architecture, foundation modules, and
 Use the provided structure (Phase references, core modules, user flow validation, and system dependencies).
 Ask for confirmation first that all core functional areas have been identified before writing the regression checklist.
 When you get confirmation, write the resulting file to:
-`/docs/operations/regression/00_master_regression_manifest.md`.
+`/docs/operations/regression_manifest.md`.
 
 **Regression Checklist Generator reference:** /prompts/system/utilities/10_regression_manifest.md
 

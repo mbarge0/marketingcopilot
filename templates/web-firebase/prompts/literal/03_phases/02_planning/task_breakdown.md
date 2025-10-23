@@ -9,7 +9,7 @@ Confirm that each task directly maps to a specific part of the PRD or checklist.
 
 Before finalizing, also perform **Regression Planning**:
 - Identify which previously completed phases or systems could be affected by this phase.
-- Reference `/docs/operations/regression/00_master_regression_manifest.md` to confirm regression dependencies.
+- Reference `/docs/operations/regression_manifest.md` to confirm regression dependencies.
 - Record which features or workflows must continue working after this phase completes.
 
 Pause to review and adjust before assigning work or beginning implementation.

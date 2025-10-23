@@ -12,7 +12,7 @@ Confirm readiness and assumptions with a short checkpoint summary.
 Then execute the Plan step using the **Planning Loop Template**.
 Identify priority order, dependencies, and estimated effort for each task.
 Confirm that each task directly maps to a specific part of the PRD or checklist.
-Perform regression planning referencing `/docs/operations/regression/00_master_regression_manifest.md` to confirm regression dependencies and which previously completed phases or systems could be affected by this phase.
+Perform regression planning referencing `/docs/operations/regression_manifest.md` to confirm regression dependencies and which previously completed phases or systems could be affected by this phase.
 
 Then implement the Design Step using the **Design Loop Template**.  
 Describe what the interface should look and feel like — layout, spacing, color system, typography, motion, and accessibility.  
@@ -28,5 +28,5 @@ Store the resulting report under `/docs/operations/phases/recent/phase-XX-01-pla
 
 **Previous phase documentation:** `/docs/operations/phases/phase-03-03-reflect.md`  
 **PRD, architecture, and dev checklist:** `/docs/foundation/`  
-**Regression manifest:** `/docs/operations/regression/00_master_regression_manifest.md`
+**Regression manifest:** `/docs/operations/regression_manifest.md`
 **Coding rules**: `/docs/operations/coding_rules.md`
