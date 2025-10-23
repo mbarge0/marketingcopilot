@@ -1,0 +1,14 @@
+{
+    "name": "messaging",
+    "version": "1.0.0",
+    "description": "Realtime messaging and presence management for Foundry-based applications.",
+    "entry": "src/realtime.ts",
+    "dependencies": {
+        "firebase-admin": "^11.10.0"
+    },
+    "exports": {
+        "updatePresence": "src/realtime.ts",
+        "setReadReceipt": "src/realtime.ts",
+        "sendMessage": "src/realtime.ts"
+    }
+}

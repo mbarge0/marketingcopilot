@@ -1,0 +1,22 @@
+{
+    "name": "Foundry iOS + Firebase Template",
+    "description": "iOS SwiftUI project integrated with Firebase Functions and Foundry Core workflows.",
+    "version": "1.0.0",
+    "structure": {
+        "frontend": "WorldChat",
+        "backend": "functions",
+        "docs": "docs",
+        "prompts": "prompts",
+        "scripts": "scripts"
+    },
+    "includes": [
+        "WorldChat",
+        "functions",
+        "firebase.json",
+        "firestore.rules",
+        "firestore.indexes.json",
+        "docs",
+        "prompts",
+        "scripts"
+    ]
+}

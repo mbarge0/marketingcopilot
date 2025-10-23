@@ -1,0 +1,28 @@
+name: MyApp
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  MyApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: .
+    resources:
+      - Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.MyApp
+        SWIFT_VERSION: 5.9
+        IPHONEOS_DEPLOYMENT_TARGET: 16.0
+  MyAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+  MyAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
