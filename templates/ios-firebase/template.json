@@ -1,22 +1,19 @@
 {
-    "name": "Foundry iOS + Firebase Template",
-    "description": "iOS SwiftUI project integrated with Firebase Functions and Foundry Core workflows.",
+    "$schema": "https://foundry.dev/schema/template.json",
+    "name": "iOS + Firebase Template",
     "version": "1.0.0",
-    "structure": {
-        "frontend": "WorldChat",
-        "backend": "functions",
-        "docs": "docs",
-        "prompts": "prompts",
-        "scripts": "scripts"
-    },
-    "includes": [
-        "WorldChat",
-        "functions",
-        "firebase.json",
-        "firestore.rules",
-        "firestore.indexes.json",
-        "docs",
-        "prompts",
-        "scripts"
-    ]
+    "description": "A starter iOS + Firebase template.",
+    "interface": "ios",
+    "backend": "firebase",
+    "extends": [
+        "../core/config",
+        "../core/tools"
+    ],
+    "dependencies": [
+        "firebase-tools"
+    ],
+    "helloWorld": {
+        "file": "functions/src/index.ts",
+        "expectedOutput": "Hello from Foundry Functions!"
+    }
 }
