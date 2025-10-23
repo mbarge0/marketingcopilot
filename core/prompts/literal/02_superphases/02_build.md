@@ -6,7 +6,17 @@ Let’s implement this supermodule. Begin the **Build Phase** for this supermodu
 Let’s begin the Build Step using the **Build Loop Template**.  
 Outline your implementation approach first, then build features step-by-step.  
 Verify functionality incrementally — test each major part before moving to the next.  
-Pause for confirmation if any interpretation or assumption is unclear. Whenever you pause to update me on your progress, share which development task you’re on ie C3 RAG
+Pause for confirmation if any interpretation or assumption is unclear. Whenever you pause to update me on your progress, share which development task you’re on ie C3 RAG.
+
+All code or implementation changes must appear between:
+`<!-- BEGIN:BUILD_IMPLEMENTATION -->`  
+and  
+`<!-- END:BUILD_IMPLEMENTATION -->`.
+
+After completing all build steps and testing locally, summarize your implementation report between:
+`<!-- BEGIN:BUILD_REPORT -->`  
+and  
+`<!-- END:BUILD_REPORT -->`.
 
 Then implement the UI Review step using the **UI Review Loop Template**.  
 Compare the built interface against the approved design and the global UI Guidelines.  
@@ -18,7 +28,7 @@ Validate that all checklist items from the dev checklist are satisfied and tests
 Run unit, integration, and end-to-end checks to confirm feature completeness.  
 Generate a regression checklist referencing prior modules and ensure legacy features remain stable.
 
-Store the resulting report under `/docs/operations/phases/phase-XX-02-build.md`. New work goes into `/docs/operations/phases/recent/`; move completed artifacts together to `/docs/operations/phases/archive/`. If the current supermodule or module does not have a number, assign it the next available phase number from the development checklist.
+Implement all code changes directly in the repository using **Coding Rules** as a philosophy. After completing implementation and testing, summarize the changes and store the build report under `/docs/operations/phases/phase-XX-02-build.md.` New work goes into `/docs/operations/phases/recent/`; move completed artifacts together to `/docs/operations/phases/archive/`. If the current supermodule or module does not have a number, assign it the next available phase number from the development checklist. Once you're done implementing, update the **Source of Truth** document.
 
 **System Template references:**  
 - Build Loop Template: `/prompts/system/04_building_loop.md`  
@@ -30,3 +40,4 @@ Store the resulting report under `/docs/operations/phases/phase-XX-02-build.md`.
 - UI Guidelines: `/docs/operations/ui-guidelines.md`  
 - Regression manifest: `/docs/operations/regression_manifest.md`
 - Coding Rules: `/docs/operations/coding_rules.md`
+- Source of Truth: `/docs/operations/source_of_truth.md`

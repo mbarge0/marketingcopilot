@@ -1,6 +1,6 @@
 ## Metadata
 - **Phase:** {{phase-number}}
-- **Mode:** Ask
+- **Mode:** Document
 - **Merge Mode:** Append
 - **Output Path:** `/docs/operations/phases/recent/phase-{{phase-number}}-build.md`
 

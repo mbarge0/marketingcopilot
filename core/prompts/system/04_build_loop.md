@@ -1,6 +1,7 @@
 ## Metadata
 - **Phase:** {{phase-number}}
-- **Mode:** Agent
+- **Mode:** Code
+- **Output Intent:** Implement
 - **Merge Mode:** Append
 - **Output Path:** `/docs/operations/phases/recent/phase-{{phase-number}}-build.md`
 
@@ -40,6 +41,14 @@ Please:
 - Always verify you’re on the correct feature branch before proceeding.  
 - Document not just *what* you built, but *why* design or implementation choices were made.  
 - Use checkpoints at key milestones (component complete, test passing, major fix).  
+
+---
+
+## Output Boundaries
+- Implementation Start Tag: <!-- BEGIN:BUILD_IMPLEMENTATION -->
+- Implementation End Tag: <!-- END:BUILD_IMPLEMENTATION -->
+- Report Start Tag: <!-- BEGIN:BUILD_REPORT -->
+- Report End Tag: <!-- END:BUILD_REPORT -->
 
 ---
 
