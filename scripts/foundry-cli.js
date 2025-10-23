@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 🧱 Foundry CLI — v3.3
+ * 🧱 Foundry CLI — v3.4
  * Clean, manifest-driven template instantiation system.
  * 
  * Features:
@@ -8,6 +8,7 @@
  *  - Template manifest (`template.json`) defines `extends`, `postInstall`, etc.
  *  - Copies and merges shared core directories (config, tools, etc.)
  *  - Installs dependencies recursively per package.json
+ *  - Supports automatic iOS Xcode project generation via XcodeGen
  */
 
 import chalk from "chalk";
@@ -15,6 +16,8 @@ import { execSync } from "child_process";
 import fs from "fs";
 import ora from "ora";
 import path from "path";
+import { stdin as input, stdout as output } from "process";
+import readline from "readline/promises";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,7 +34,6 @@ if (!templateName || !projectName) {
 }
 
 // --- Resolve paths ---
-// Always anchor to the repo root (directory containing the scripts/ folder)
 const foundryRoot = path.resolve(__dirname, "..");
 const templatePath = path.join(foundryRoot, "templates", templateName);
 const globalProjectsDir = path.join(process.env.HOME, "DevProjects");
@@ -59,16 +61,13 @@ if (fs.existsSync(manifestPath)) {
   console.log(chalk.yellow("⚠️ No template.json found — continuing with defaults."));
 }
 
-// --- Copy template files first ---
+// --- Copy template files ---
 console.log(chalk.blue(`📦 Creating new project from template: ${templateName}`));
 fs.cpSync(templatePath, targetDir, { recursive: true });
 
 // --- Extend from shared core paths ---
 if (manifest.extends && Array.isArray(manifest.extends)) {
   for (const declaredPath of manifest.extends) {
-    // Normalize declared path and anchor to foundryRoot
-    // - Strip leading ./, ../, and leading slashes
-    // - Preserve subpath so we can mirror into target project
     const normalizedRel = declaredPath
       .replace(/\\/g, "/")
       .replace(/^(?:\.\/)+/, "")
@@ -76,8 +75,6 @@ if (manifest.extends && Array.isArray(manifest.extends)) {
       .replace(/^\/+/, "");
 
     const srcAbs = path.join(foundryRoot, normalizedRel);
-
-    // Destination: for directories like "core/config", copy as top-level "config" in target
     const destDirName = path.basename(normalizedRel.replace(/\/+$/, ""));
     const destAbs = path.join(targetDir, destDirName);
 
@@ -99,7 +96,7 @@ if (manifest.extends && Array.isArray(manifest.extends)) {
   }
 }
 
-// --- Auto dependency installation ---
+// --- Install dependencies recursively ---
 const spinner = ora(`Installing dependencies for ${chalk.green(projectName)}...`).start();
 
 function installDeps(dir) {
@@ -131,7 +128,169 @@ try {
   console.error(err);
 }
 
-// --- Post-install scripts (optional) ---
+// --- Handle iOS templates ---
+if (templateName.toLowerCase().includes("ios")) {
+  console.log(chalk.yellow("\n🛠 Detected iOS template — starting interactive Xcode setup..."));
+
+  const rl = readline.createInterface({ input, output });
+  const appName = await rl.question(chalk.cyan("📱 Enter app name (e.g. WorldChat): "));
+  const bundleId = await rl.question(chalk.cyan(`🎯 Enter bundle ID (default: com.mbarge.${appName || projectName}): `));
+  rl.close();
+
+  const finalAppName = appName || projectName;
+  const finalBundleId = bundleId || `com.mbarge.${finalAppName.toLowerCase()}`;
+
+  const iosBootstrap = path.join(targetDir, "ios-bootstrap");
+  const renamedIosFolder = path.join(targetDir, finalAppName);
+
+  if (!fs.existsSync(iosBootstrap)) {
+    console.log(chalk.red("❌ ios-bootstrap folder missing — cannot generate Xcode project."));
+    process.exit(1);
+  }
+
+  fs.renameSync(iosBootstrap, renamedIosFolder);
+  console.log(chalk.gray(`📂 Renamed iOS bootstrap folder → ${finalAppName}`));
+
+  try {
+    // Helpers
+    const writeCanonicalInfoPlist = (plistPath, appNameVal, bundleIdVal) => {
+      const lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+        '<plist version="1.0">',
+        '<dict>',
+        '  <key>CFBundleName</key>',
+        '  <string>$(PRODUCT_NAME)</string>',
+        '  <key>CFBundleIdentifier</key>',
+        '  <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>',
+        '  <key>CFBundleVersion</key>',
+        '  <string>1</string>',
+        '  <key>CFBundleShortVersionString</key>',
+        '  <string>1.0</string>',
+        '  <key>UILaunchStoryboardName</key>',
+        '  <string>LaunchScreen</string>',
+        '  <key>UIApplicationSceneManifest</key>',
+        '  <dict>',
+        '    <key>UIApplicationSupportsMultipleScenes</key>',
+        '    <false/>',
+        '  </dict>',
+        '</dict>',
+        '</plist>',
+        ''
+      ];
+      const content = lines.join("\n");
+      fs.writeFileSync(plistPath, content, { encoding: "utf8", flag: "w" });
+      // Force xml format and validate
+      execSync(`plutil -convert xml1 "${plistPath}"`, { stdio: "inherit" });
+      execSync(`plutil -lint "${plistPath}"`, { stdio: "inherit" });
+    };
+    const validatePlist = (plistPath) => {
+      try {
+        execSync(`plutil -lint "${plistPath}"`, { stdio: "pipe" });
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    const writeMinimalGoogleServicePlist = (plistPath) => {
+      const lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+        '<plist version="1.0">',
+        '<dict>',
+        '  <key>GOOGLE_APP_ID</key>',
+        '  <string>REPLACE_WITH_YOUR_APP_ID</string>',
+        '  <key>GCM_SENDER_ID</key>',
+        '  <string>REPLACE_WITH_YOUR_SENDER_ID</string>',
+        '  <key>API_KEY</key>',
+        '  <string>REPLACE_WITH_YOUR_API_KEY</string>',
+        '  <key>PROJECT_ID</key>',
+        '  <string>REPLACE_WITH_YOUR_PROJECT_ID</string>',
+        '</dict>',
+        '</plist>',
+        ''
+      ];
+      const content = lines.join("\n");
+      fs.writeFileSync(plistPath, content, { encoding: "utf8", flag: "w" });
+      execSync(`plutil -convert xml1 "${plistPath}"`, { stdio: "inherit" });
+      execSync(`plutil -lint "${plistPath}"`, { stdio: "inherit" });
+    };
+    fs.mkdirSync(path.join(renamedIosFolder, "Tests"), { recursive: true });
+    fs.mkdirSync(path.join(renamedIosFolder, "UITests"), { recursive: true });
+
+    const projectYml = path.join(renamedIosFolder, "project.yml");
+    if (fs.existsSync(projectYml)) {
+      let content = fs.readFileSync(projectYml, "utf8");
+      // Update project name
+      content = content.replace(/^name:\s*.*/m, `name: ${finalAppName}`);
+      // Replace test targets and schemes first (avoid partial overlaps), then base app name
+      content = content.replace(/\bMyAppUITests\b/g, `${finalAppName}UITests`);
+      content = content.replace(/\bMyAppTests\b/g, `${finalAppName}Tests`);
+      // Replace ALL occurrences of MyApp with the final app name (targets, schemes, references)
+      content = content.replace(/\bMyApp\b/g, finalAppName);
+      // Update bundle id
+      content = content.replace(/(PRODUCT_BUNDLE_IDENTIFIER:\s*).*/m, `$1${finalBundleId}`);
+      // Ensure INFOPLIST_FILE is set to Info.plist at the target root
+      content = content.replace(/(INFOPLIST_FILE:\s*).*/m, `$1Info.plist`);
+      // Ensure Firebase via SPM packages block exists
+      if (!/packages:\s*\n\s*Firebase:/m.test(content)) {
+        const packagesBlock = `\npackages:\n  Firebase:\n    url: https://github.com/firebase/firebase-ios-sdk.git\n    from: 10.24.0\n`;
+        content = content.replace(/(MARKETING_VERSION:\s*.*)/m, `$1${packagesBlock}`);
+      }
+      // Ensure dependencies use package products, replace legacy sdk lines if present
+      content = content.replace(/\- sdk: FirebaseCore\.framework\n?/g, "");
+      content = content.replace(/\- sdk: FirebaseFirestore\.framework\n?/g, "");
+      if (!/product:\s*FirebaseCore/m.test(content)) {
+        content = content.replace(/dependencies:\n([\s\S]*?)\n\s*\n/m, (m0) => {
+          return m0.replace(/dependencies:\n/, `dependencies:\n      - package: Firebase\n        product: FirebaseCore\n      - package: Firebase\n        product: FirebaseFirestore\n`);
+        });
+      }
+      fs.writeFileSync(projectYml, content, { encoding: "utf8" });
+    }
+
+    const infoPlist = path.join(renamedIosFolder, "Info.plist");
+    console.log(chalk.gray("🧩 Writing canonical Info.plist..."));
+    writeCanonicalInfoPlist(infoPlist, finalAppName, finalBundleId);
+    console.log(chalk.green(`📄 Info.plist validated for ${finalAppName}`));
+
+    // Ensure GoogleService-Info.plist is a valid plist so Xcode doesn't error
+    const googlePlist = path.join(renamedIosFolder, "GoogleService-Info.plist");
+    if (fs.existsSync(googlePlist)) {
+      if (!validatePlist(googlePlist)) {
+        console.log(chalk.yellow("⚠️ GoogleService-Info.plist invalid — writing minimal placeholder."));
+        writeMinimalGoogleServicePlist(googlePlist);
+      } else {
+        execSync(`plutil -convert xml1 "${googlePlist}"`, { stdio: "inherit" });
+      }
+    } else {
+      console.log(chalk.gray("ℹ️ GoogleService-Info.plist missing — creating placeholder so builds succeed."));
+      writeMinimalGoogleServicePlist(googlePlist);
+    }
+
+    console.log(chalk.gray(`📄 Running: xcodegen generate`));
+    execSync("xcodegen generate", { cwd: renamedIosFolder, stdio: "inherit" });
+
+    const oldProj = path.join(renamedIosFolder, "MyApp.xcodeproj");
+    const newProj = path.join(renamedIosFolder, `${finalAppName}.xcodeproj`);
+    if (fs.existsSync(oldProj)) fs.renameSync(oldProj, newProj);
+
+    // Pre-resolve Swift Package dependencies so Xcode opens ready to build
+    const projToResolve = fs.existsSync(newProj) ? newProj : path.join(renamedIosFolder, `${finalAppName}.xcodeproj`);
+    console.log(chalk.gray(`📦 Resolving Swift packages for project: ${projToResolve}`));
+    try {
+      execSync(`xcodebuild -resolvePackageDependencies -project "${projToResolve}"`, { stdio: "inherit" });
+    } catch (e) {
+      console.log(chalk.yellow("⚠️ xcodebuild package resolution reported an issue; Xcode may still resolve on open."));
+    }
+
+    console.log(chalk.green(`✅ Successfully generated ${finalAppName}.xcodeproj inside ${finalAppName}/`));
+  } catch (err) {
+    console.error(chalk.red("❌ XcodeGen failed to generate project."));
+    console.error(chalk.gray("Ensure `brew install xcodegen` and valid project.yml."));
+  }
+}
+
+// --- Post-install scripts ---
 if (manifest.postInstall && Array.isArray(manifest.postInstall)) {
   for (const cmd of manifest.postInstall) {
     console.log(chalk.cyan(`⚙️ Running post-install command: ${cmd}`));
@@ -143,7 +302,7 @@ if (manifest.postInstall && Array.isArray(manifest.postInstall)) {
   }
 }
 
-// --- Hello World validation (optional) ---
+// --- Hello World validation ---
 if (manifest.helloWorld) {
   const helloPath = path.join(targetDir, manifest.helloWorld.file);
   if (fs.existsSync(helloPath)) {
@@ -153,7 +312,7 @@ if (manifest.helloWorld) {
   }
 }
 
-// --- Done ---
+// --- Final summary ---
 console.log(chalk.greenBright(`\n🚀 Project created successfully: ${projectName}`));
 console.log(chalk.gray(`📂 Location: ${targetDir}`));
 console.log(chalk.cyan(`\nNext steps:`));
