@@ -31,16 +31,8 @@ if (!templateName || !projectName) {
 }
 
 // --- Resolve paths ---
-// Ensure foundryRoot points to the root of foundryv3, not DevProjects
-const foundryRoot = path.resolve(__dirname, "../");
-if (!fs.existsSync(path.join(foundryRoot, "core"))) {
-  // If run via npm link from elsewhere, correct path manually
-  const possibleRoot = path.resolve(process.cwd(), "foundryv3");
-  if (fs.existsSync(path.join(possibleRoot, "core"))) {
-    console.log(chalk.gray(`🔍 Adjusted foundry root: ${possibleRoot}`));
-    foundryRoot = possibleRoot;
-  }
-}
+// Always anchor to the repo root (directory containing the scripts/ folder)
+const foundryRoot = path.resolve(__dirname, "..");
 const templatePath = path.join(foundryRoot, "templates", templateName);
 const globalProjectsDir = path.join(process.env.HOME, "DevProjects");
 const isLocal = flags.includes("--local");
@@ -73,15 +65,36 @@ fs.cpSync(templatePath, targetDir, { recursive: true });
 
 // --- Extend from shared core paths ---
 if (manifest.extends && Array.isArray(manifest.extends)) {
-  for (const relPath of manifest.extends) {
-    // Always resolve relative to Foundry root (not cwd)
-    const absPath = path.join(foundryRoot, relPath.replace(/^(\.\/|\/)+/, ""));
-    console.log(chalk.magenta(`📁 Resolved path: ${absPath}`)); // debug
-    if (fs.existsSync(absPath)) {
-      console.log(chalk.gray(`🔗 Extending from ${absPath}`));
-      fs.cpSync(absPath, targetDir, { recursive: true });
+  for (const declaredPath of manifest.extends) {
+    // Normalize declared path and anchor to foundryRoot
+    // - Strip leading ./, ../, and leading slashes
+    // - Preserve subpath so we can mirror into target project
+    const normalizedRel = declaredPath
+      .replace(/\\/g, "/")
+      .replace(/^(?:\.\/)+/, "")
+      .replace(/^(?:\.\.\/)+/, "")
+      .replace(/^\/+/, "");
+
+    const srcAbs = path.join(foundryRoot, normalizedRel);
+
+    // Destination: for directories like "core/config", copy as top-level "config" in target
+    const destDirName = path.basename(normalizedRel.replace(/\/+$/, ""));
+    const destAbs = path.join(targetDir, destDirName);
+
+    console.log(chalk.magenta(`📁 Extend: ${declaredPath}\n    src:  ${srcAbs}\n    dest: ${destAbs}`));
+
+    if (fs.existsSync(srcAbs)) {
+      const stat = fs.lstatSync(srcAbs);
+      if (stat.isDirectory()) {
+        fs.mkdirSync(destAbs, { recursive: true });
+        fs.cpSync(srcAbs, destAbs, { recursive: true });
+      } else {
+        fs.mkdirSync(path.dirname(destAbs), { recursive: true });
+        fs.cpSync(srcAbs, destAbs);
+      }
+      console.log(chalk.gray(`🔗 Copied into ${destAbs}`));
     } else {
-      console.log(chalk.yellow(`⚠️ Missing extended path: ${absPath}`));
+      console.log(chalk.yellow(`⚠️ Missing extended path: ${srcAbs}`));
     }
   }
 }

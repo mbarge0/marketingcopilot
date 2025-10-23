@@ -1,0 +1,14 @@
+{
+    "name": "foundry-web-firebase",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "firebase emulators:start --only hosting,functions",
+        "serve": "firebase emulators:start --only hosting,functions",
+        "deploy": "firebase deploy",
+        "postinstall": "echo 'Postinstall complete'"
+    },
+    "dependencies": {
+        "firebase-tools": "^14.20.0"
+    }
+}
