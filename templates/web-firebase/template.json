@@ -1,19 +1,20 @@
 {
-    "$schema": "https://foundry.dev/schema/template.json",
-    "name": "Web + Firebase Template",
+    "name": "web-firebase",
     "version": "1.0.0",
-    "description": "A minimal web app served with Firebase Hosting plus a sample Cloud Function.",
-    "interface": "web",
-    "backend": "firebase",
+    "private": true,
+    "scripts": {
+        "dev": "firebase emulators:start",
+        "deploy": "firebase deploy",
+        "serve": "firebase serve"
+    },
+    "dependencies": {
+        "firebase": "^11.0.0"
+    },
+    "devDependencies": {
+        "firebase-tools": "^13.0.0"
+    },
     "extends": [
-        "core/config",
-        "core/tools"
-    ],
-    "dependencies": [
-        "firebase-tools"
-    ],
-    "helloWorld": {
-        "file": "public/index.html",
-        "expectedOutput": "Hello World"
-    }
+        "../core/config",
+        "../core/tools"
+    ]
 }
