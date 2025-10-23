@@ -8,6 +8,6 @@ Map each **primary user journey**, including entry points, decision paths, and o
 Ensure that every flow aligns with **PRD user stories** and that **edge cases, transitions, and states** are represented.
 Confirm the **target platform(s)** before generating the flow.
 When confirmed, write the result to `/docs/foundation/user_flow.md`.
-**User Flow Loop Template reference**: `/prompts/system/00_d_user_flow_loop.md`
+**User Flow Loop Template reference**: `/prompts/system/foundation/05_user_flow_loop.md`
 
 PRD is located inside `/docs/foundation` folder.

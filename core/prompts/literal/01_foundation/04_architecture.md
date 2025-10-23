@@ -7,6 +7,6 @@ Map the architecture to the PRD and identify where testing coverage will be nece
 Pause to validate assumptions and confirm the architectural design before implementation.
 Before writing or generating architecture files, ask me questions to clarify the system design and component structure.
 When you get confirmation to write the architecture document, write the result to `/docs/foundation/architecture.md`.
-**Architecture Loop Template reference**: /prompts/system/00_b_architecture_loop.md
+**Architecture Loop Template reference**: `/prompts/system/foundation/04_architecture_loop.md`
 
 PRD is located inside /docs/foundation folder.

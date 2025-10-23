@@ -8,6 +8,6 @@ Ask for confirmation first that all core functional areas have been identified b
 When you get confirmation, write the resulting file to:
 `/docs/operations/regression_manifest.md`.
 
-**Regression Checklist Generator reference:** /prompts/system/utilities/10_regression_manifest.md
+**Regression Checklist Generator reference:** `/prompts/system/foundation/08_regression_manifest_loop.md`
 
 PRD, architecture, and dev checklist documents are located in /docs/foundation folder.

@@ -9,6 +9,6 @@ Describe how each technology maps to a **Supermodule or subsystem** and clarify 
 Highlight **trade-offs, alternatives considered**, and **compatibility notes**.
 Before writing the Tech Stack document, confirm the intended scope (**core, backend, frontend, or full stack**).
 When confirmed, write the result to `/docs/foundation/tech_stack.md`.
-**Tech Stack Loop Template reference**: `/prompts/system/00_c_tech_stack_loop.md`
+**Tech Stack Loop Template reference**: `/prompts/system/foundation/03_tech_stack_loop.md`
 
 PRD is located inside `/docs/foundation` folder.

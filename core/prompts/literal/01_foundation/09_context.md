@@ -18,6 +18,6 @@ Use the Context Loop Template to:
 
 When the context snapshot feels complete and accurate, write the result to `/docs/context.md`.
 
-**Context Loop Template reference:** `/prompts/system/00_d_context_generation.md`
+**Context Loop Template reference:** `/prompts/system/foundation/09_context_loop.md`
 
 All foundation documents (PRD, Architecture, Dev Checklist, and Regression Checklist) are located in the `/docs/foundation` folder.

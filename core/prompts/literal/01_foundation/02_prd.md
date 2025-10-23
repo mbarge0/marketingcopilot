@@ -7,7 +7,7 @@ Use the provided structure (Objective, Core Features, etc.).
 Ask for confirmation first that all of the questions about the project have been asked and answered before actually writing the PRD.
 When you finally get confirmation to write the PRD, write the result to `/docs/foundation/prd.md`.
 
-**Product Loop Template reference:** /prompts/system/00_a_product_loop.md
+**Product Loop Template reference:** `/prompts/system/foundation/02_prd_loop.md`.
 
 Get the initial basic description of the project from `/docs/requirements/requirements.md`.
 

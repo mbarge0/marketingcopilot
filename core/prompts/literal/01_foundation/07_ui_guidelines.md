@@ -13,4 +13,4 @@ This document should:
 - Provide component-level tokens (e.g., Button, Card, Modal, Input) for consistent implementation in Tailwind.  
 - Serve as the *single source of truth* for all design and UI review phases going forward.
 
-**System Prompt reference:** `/prompts/system/foundation_ui_guidelines.md`
+**System Prompt reference:** `/prompts/system/foundation/07_ui_guidelines_loop.md`
