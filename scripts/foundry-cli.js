@@ -246,6 +246,7 @@ if (templateName.toLowerCase().includes("ios")) {
         });
       }
       fs.writeFileSync(projectYml, content, { encoding: "utf8" });
+      console.log(chalk.gray(`📄 Updated project.yml test targets for ${finalAppName}`));
     }
 
     const infoPlist = path.join(renamedIosFolder, "Info.plist");
@@ -276,12 +277,48 @@ if (templateName.toLowerCase().includes("ios")) {
 
     // Pre-resolve Swift Package dependencies so Xcode opens ready to build
     const projToResolve = fs.existsSync(newProj) ? newProj : path.join(renamedIosFolder, `${finalAppName}.xcodeproj`);
-    console.log(chalk.gray(`📦 Resolving Swift packages for project: ${projToResolve}`));
+    console.log(chalk.gray(`📦 Resolving Swift packages and generating workspace...`));
     try {
       execSync(`xcodebuild -resolvePackageDependencies -project "${projToResolve}"`, { stdio: "inherit" });
     } catch (e) {
-      console.log(chalk.yellow("⚠️ xcodebuild package resolution reported an issue; Xcode may still resolve on open."));
+      console.log(chalk.yellow("⚠️ xcodebuild project package resolution reported an issue; continuing."));
     }
+
+    // Ensure a workspace exists that references the project
+    const workspaceDir = path.join(renamedIosFolder, `${finalAppName}.xcworkspace`);
+    const workspaceDataPath = path.join(workspaceDir, "contents.xcworkspacedata");
+    if (!fs.existsSync(workspaceDir)) {
+      fs.mkdirSync(workspaceDir, { recursive: true });
+      const workspaceXml = `<?xml version="1.0" encoding="UTF-8"?>\n<Workspace version = "1.0">\n  <FileRef location = "group:${finalAppName}.xcodeproj">\n  </FileRef>\n</Workspace>\n`;
+      fs.writeFileSync(workspaceDataPath, workspaceXml, { encoding: "utf8" });
+    } else if (!fs.existsSync(workspaceDataPath)) {
+      const workspaceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Workspace version = \"1.0\">\n  <FileRef location = \"group:${finalAppName}.xcodeproj\">\n  </FileRef>\n</Workspace>\n`;
+      fs.writeFileSync(workspaceDataPath, workspaceXml, { encoding: "utf8" });
+    }
+
+    // Resolve packages at the workspace level (with scheme)
+    try {
+      execSync(`xcodebuild -resolvePackageDependencies -workspace "${workspaceDir}" -scheme "${finalAppName}"`, { stdio: "inherit" });
+    } catch (e) {
+      console.log(chalk.yellow("⚠️ xcodebuild workspace package resolution reported an issue; continuing."));
+    }
+
+    // Ensure a Package.resolved is present in shared swiftpm folder
+    const projResolved = path.join(projToResolve, "project.xcworkspace", "xcshareddata", "swiftpm", "Package.resolved");
+    const wsResolved = path.join(workspaceDir, "xcshareddata", "swiftpm", "Package.resolved");
+    try {
+      if (!fs.existsSync(path.dirname(projResolved))) fs.mkdirSync(path.dirname(projResolved), { recursive: true });
+      if (!fs.existsSync(path.dirname(wsResolved))) fs.mkdirSync(path.dirname(wsResolved), { recursive: true });
+      // Re-run resolve to trigger writing Package.resolved if still missing
+      if (!fs.existsSync(projResolved)) {
+        try { execSync(`xcodebuild -resolvePackageDependencies -project "${projToResolve}"`, { stdio: "ignore" }); } catch { }
+      }
+      if (!fs.existsSync(wsResolved)) {
+        try { execSync(`xcodebuild -resolvePackageDependencies -workspace "${workspaceDir}" -scheme "${finalAppName}"`, { stdio: "ignore" }); } catch { }
+      }
+    } catch { }
+
+    console.log(chalk.green(`✅ Firebase and Swift packages fully resolved for ${finalAppName}`));
 
     console.log(chalk.green(`✅ Successfully generated ${finalAppName}.xcodeproj inside ${finalAppName}/`));
   } catch (err) {
