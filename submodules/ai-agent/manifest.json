@@ -1,0 +1,15 @@
+{
+    "name": "ai-agent",
+    "version": "1.0.0",
+    "description": "Reusable AI Agent logic for OpenAI-powered features such as Smart Replies, Summaries, and Assistant Agents.",
+    "entry": "src/index.ts",
+    "dependencies": {
+        "openai": "^4.0.0",
+        "firebase-functions": "^5.0.0",
+        "firebase-admin": "^11.10.0"
+    },
+    "exports": {
+        "askAI": "src/index.ts",
+        "generateSmartReplies": "src/index.ts"
+    }
+}
