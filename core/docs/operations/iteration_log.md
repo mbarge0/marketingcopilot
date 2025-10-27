@@ -72,3 +72,14 @@ Cursor will extract the relevant changes from recent code commits or its own mem
 Iteration Log = the living record of evolution between checkpoints.  
 PRD defines what to build; Iteration Log captures *how it changed while you built it*.  
 In Gauntlet Mode, it’s also a trace of AI-human design collaboration.
+
+### Iteration 23 — October 27, 2025
+**Feature:** Added Desktop Template (Electron Base Runtime)
+
+- Introduced `templates/desktop/` with full Foundry Core inheritance.
+- Configured Electron Forge + Vite for native app builds.
+- Validated local `npm run dev` and `npm run make` workflows.
+- Established packaging and testing pipeline for cross-platform distribution.
+- Added `.gitignore` improvements to exclude build artifacts and node_modules.
+
+**Outcome:** Foundry v3 now supports Web, Mobile, and Desktop templates — forming a complete full-stack ecosystem for Gauntlet AI development.
