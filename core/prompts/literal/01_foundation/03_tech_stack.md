@@ -11,4 +11,4 @@ Before writing the Tech Stack document, confirm the intended scope (**core, back
 When confirmed, write the result to `/docs/foundation/tech_stack.md`.
 **Tech Stack Loop Template reference**: `/prompts/system/foundation/03_tech_stack_loop.md`
 
-PRD is located inside `/docs/foundation` folder.
+All foundation documents are located inside `/docs/foundation` folder.
