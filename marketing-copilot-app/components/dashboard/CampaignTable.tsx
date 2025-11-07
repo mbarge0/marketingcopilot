@@ -37,13 +37,20 @@ export default function CampaignTable() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch campaigns');
+        // Check if it's a configuration error
+        if (data.error === 'Configuration error' || data.message?.includes('required')) {
+          throw new Error(
+            data.details || 
+            'Missing environment variables. Please check your .env.local file and ensure SUPABASE_SERVICE_ROLE_KEY is set.'
+          );
+        }
+        throw new Error(data.message || data.error || 'Failed to fetch campaigns');
       }
 
       setCampaigns(data.campaigns || []);
       setError(null);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to fetch campaigns');
       setCampaigns([]);
     } finally {
       setLoading(false);
@@ -78,8 +85,20 @@ export default function CampaignTable() {
           <CardTitle>Campaigns</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-red-600">
-            {error}
+          <div className="text-center py-8">
+            <div className="text-red-600 mb-4">
+              <p className="font-semibold mb-2">{error}</p>
+              {error.includes('environment variables') && (
+                <div className="text-sm text-gray-600 mt-2 max-w-md mx-auto">
+                  <p>To fix this:</p>
+                  <ol className="list-decimal list-inside mt-2 space-y-1 text-left">
+                    <li>Create a <code className="bg-gray-100 px-1 rounded">.env.local</code> file in the <code className="bg-gray-100 px-1 rounded">marketing-copilot-app</code> directory</li>
+                    <li>Add <code className="bg-gray-100 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY=your_key_here</code></li>
+                    <li>Restart your development server</li>
+                  </ol>
+                </div>
+              )}
+            </div>
             <Button onClick={fetchCampaigns} className="mt-4">
               Retry
             </Button>

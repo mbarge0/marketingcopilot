@@ -118,6 +118,19 @@ export async function GET(request: NextRequest) {
     }
   } catch (error: any) {
     console.error('Campaigns API error:', error);
+    
+    // Check for missing environment variables
+    if (error.message?.includes('required')) {
+      return NextResponse.json(
+        { 
+          error: 'Configuration error', 
+          message: error.message,
+          details: 'Please check your environment variables. Ensure SUPABASE_SERVICE_ROLE_KEY is set in your .env.local file.'
+        },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error', message: error.message },
       { status: 500 }

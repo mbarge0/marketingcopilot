@@ -97,6 +97,39 @@ AI-powered Google Ads campaign management platform that enables performance mark
 
 7. **Open http://localhost:3000**
 
+## Troubleshooting
+
+### Error: "supabaseKey is required" or "SUPABASE_SERVICE_ROLE_KEY is required"
+
+This error occurs when the Supabase service role key is missing from your environment variables.
+
+**Solution:**
+1. Go to your Supabase project dashboard: https://app.supabase.com
+2. Navigate to **Settings** → **API**
+3. Copy the **service_role** key (⚠️ Keep this secret!)
+4. Add it to your `.env.local` file:
+   ```env
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+   ```
+5. Restart your development server (`npm run dev`)
+
+**Important:** The service role key has admin access to your database. Never commit it to git or expose it in client-side code.
+
+### Error: "NEXT_PUBLIC_SUPABASE_URL is required"
+
+Make sure you have both Supabase environment variables set:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+### Other Common Issues
+
+- **500 Internal Server Error**: Check server logs in terminal for detailed error messages
+- **Campaigns not loading**: Ensure you've connected a Google Ads account or enabled demo mode
+- **OAuth redirect errors**: Verify `GOOGLE_ADS_REDIRECT_URI` matches your Google Cloud Console configuration
+
 ## Project Structure
 
 ```
