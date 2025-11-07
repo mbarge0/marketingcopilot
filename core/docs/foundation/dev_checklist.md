@@ -589,7 +589,93 @@
 
 ---
 
-## 16. References
+## 16. Meta Menu + AI Layout Redesign
+
+### 16.1 Meta Menu Implementation
+
+- [ ] **16.1.1 Create Meta Menu Component**
+  - [ ] `components/ui/meta-menu/MetaMenu.tsx`
+  - [ ] Three persistent items: Dashboard, AI, Settings
+  - [ ] Icon-based with labels on hover/expand
+  - [ ] Compact vertical layout (far left column)
+  - [ ] Active state highlighting
+  - [ ] Smooth transitions between modes
+  - [ ] Icons: 📊 Dashboard, 🧠 AI, ⚙️ Settings
+
+- [ ] **16.1.2 Update Layout Structure**
+  - [ ] Three-column layout: Meta Menu (far left) + Existing LeftNavigation (middle) + Main Content (right)
+  - [ ] Update `app/dashboard/layout.tsx` or create new layout wrapper
+  - [ ] Ensure meta-menu remains visible at all times
+  - [ ] Keep existing LeftNavigation component unchanged (Campaigns, Ad Groups, etc.)
+  - [ ] Responsive behavior (collapse meta-menu on mobile, keep LeftNavigation)
+
+### 16.2 AI Mode
+
+- [ ] **16.2.1 Create AI Workspace View**
+  - [ ] `app/ai/page.tsx` - New AI mode page
+  - [ ] Move AI panel to right side (drawer/split-pane)
+  - [ ] Keep central workspace visible (no overlay)
+  - [ ] Add Full-Screen Mode toggle
+  - [ ] Contextual AI modes: Analyze, Research, Generate
+  - [ ] Show "getting started" guidance when no mode selected
+
+- [ ] **16.2.2 AI Panel Component**
+  - [ ] `components/ui/ai-panel/AIPanel.tsx`
+  - [ ] Right-side drawer or split-pane layout
+  - [ ] Expandable/collapsible
+  - [ ] Full-screen mode support (hides main content, shows only AI)
+  - [ ] Contextual suggestions when no mode selected
+  - [ ] Chat interface (enhanced version of existing ChatBox)
+
+### 16.3 Settings Mode
+
+- [ ] **16.3.1 Create Settings Page**
+  - [ ] `app/settings/page.tsx`
+  - [ ] Project-level preferences
+  - [ ] Account integrations section:
+    - [ ] Google Ads connection status
+    - [ ] OpenAI API key management
+  - [ ] User profile settings
+  - [ ] Simple, clean layout with sections
+
+### 16.4 Layout Structure
+
+- [ ] **16.4.1 Implement Three-Column Layout**
+  ```
+  [Meta Menu] [LeftNavigation] [Main Content] [AI Panel (AI mode only)]
+    64px        256px            flex-1        400px (when visible)
+  ```
+  - [ ] Meta Menu: Fixed width (~64px), always visible
+  - [ ] LeftNavigation: Existing component, unchanged (~256px)
+  - [ ] Main Content: Flexible width, updates based on mode
+  - [ ] AI Panel: Right side, only visible in AI mode
+
+- [ ] **16.4.2 Route Structure**
+  - [ ] `/dashboard` - Dashboard mode (default)
+  - [ ] `/ai` - AI mode
+  - [ ] `/settings` - Settings mode
+  - [ ] Meta menu handles navigation between these routes
+
+### 16.5 Demo Readiness (Nov 8 Shoot)
+
+- [ ] **16.5.1 Navigation Flow**
+  - [ ] Dashboard → AI (via meta-menu) works smoothly
+  - [ ] AI → Full-Screen Mode toggle works
+  - [ ] Return to Dashboard works
+  - [ ] Settings accessible from any mode
+  - [ ] All transitions are visible and intuitive
+
+- [ ] **16.5.2 Stub Unfinished Views**
+  - [ ] Add clear "TODO" sections for incomplete features
+  - [ ] Ensure structure is visible even if content is placeholder
+  - [ ] Make it clear what's functional vs. stubbed
+  - [ ] AI mode should show structure even if features are stubbed
+
+**✅ Checkpoint:** Meta-menu navigation works, Dashboard/AI/Settings modes switch correctly, existing LeftNavigation preserved, AI panel appears in AI mode, demo-ready structure visible
+
+---
+
+## 17. References
 
 - **PRD:** `/docs/foundation/prd.md`
 - **Architecture:** `/docs/foundation/architecture.md`
