@@ -24,9 +24,9 @@ export function ModeTransition({ children, mode, className = '' }: ModeTransitio
       <motion.div
         key={mode}
         className={className}
-        initial={prefersReducedMotion ? false : { opacity: 0, x: 40 }}
+        initial={prefersReducedMotion ? undefined : { opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
-        exit={prefersReducedMotion ? false : { opacity: 0, x: -40 }}
+        exit={prefersReducedMotion ? undefined : { opacity: 0, x: -40 }}
         transition={copilotMotion.timing.dataRefresh}
       >
         {children}
@@ -114,6 +114,9 @@ interface ToastProps {
 export function Toast({ children, isVisible, onClose, className = '' }: ToastProps) {
   const prefersReducedMotion = useReducedMotion()
   const variants = copilotMotion.variants.toastSlide
+  
+  // Convert readonly variants to mutable for framer-motion compatibility
+  const mutableVariants = variants ? JSON.parse(JSON.stringify(variants)) : undefined
 
   useEffect(() => {
     if (isVisible && onClose) {
@@ -129,10 +132,10 @@ export function Toast({ children, isVisible, onClose, className = '' }: ToastPro
       {isVisible && (
         <motion.div
           className={className}
-          initial={prefersReducedMotion ? false : variants.initial}
-          animate={variants.animate}
-          exit={prefersReducedMotion ? false : variants.exit}
-          transition={variants.transition}
+          initial={prefersReducedMotion ? undefined : mutableVariants?.initial}
+          animate={mutableVariants?.animate}
+          exit={prefersReducedMotion ? undefined : mutableVariants?.exit}
+          transition={mutableVariants?.transition}
         >
           {children}
         </motion.div>

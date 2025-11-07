@@ -43,14 +43,17 @@ interface TableRowProps {
 export function TableRow({ children, isNew = false, className = '' }: TableRowProps) {
   const prefersReducedMotion = useReducedMotion()
   const variants = copilotMotion.variants.dataRefresh
+  
+  // Convert readonly variants to mutable for framer-motion compatibility
+  const mutableVariants = variants ? JSON.parse(JSON.stringify(variants)) : undefined
 
   return (
     <motion.tr
       className={className}
-      initial={prefersReducedMotion ? false : variants.initial}
-      animate={variants.animate}
-      exit={prefersReducedMotion ? false : variants.exit}
-      transition={variants.transition}
+      initial={prefersReducedMotion ? undefined : mutableVariants?.initial}
+      animate={mutableVariants?.animate}
+      exit={prefersReducedMotion ? undefined : mutableVariants?.exit}
+      transition={mutableVariants?.transition}
       layout
     >
       {children}

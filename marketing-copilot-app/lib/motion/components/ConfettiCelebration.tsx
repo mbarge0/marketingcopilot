@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useReducedMotion } from '../hooks'
+import { useReducedMotion, useCopilotMotion } from '../hooks'
 import { copilotMotion } from '../motion.config'
 
 interface ConfettiCelebrationProps {
@@ -107,12 +107,15 @@ export function SuccessBadgeGlow({ children, className = '' }: SuccessBadgeGlowP
     return <div className={className}>{children}</div>
   }
 
+  // Convert readonly variants to mutable for framer-motion compatibility
+  const mutableVariants = variants ? JSON.parse(JSON.stringify(variants)) : undefined
+
   return (
     <Motion.div
       className={className}
       initial="initial"
       animate="animate"
-      variants={variants}
+      variants={mutableVariants}
     >
       {children}
     </Motion.div>

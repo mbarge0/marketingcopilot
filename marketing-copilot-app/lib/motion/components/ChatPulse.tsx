@@ -20,11 +20,14 @@ export function ChatPulse({ children, isSubmitting = false, className = '' }: Ch
   const prefersReducedMotion = useReducedMotion()
   const { motion: Motion, variants } = useCopilotMotion({ variant: 'chatSubmit' })
 
+  // Convert readonly variants to mutable for framer-motion compatibility
+  const mutableVariants = prefersReducedMotion ? undefined : variants ? JSON.parse(JSON.stringify(variants)) : undefined
+
   return (
     <Motion.div
       className={className}
       animate={isSubmitting && !prefersReducedMotion ? 'animate' : 'initial'}
-      variants={prefersReducedMotion ? {} : variants}
+      variants={mutableVariants}
     >
       {children}
     </Motion.div>
@@ -66,13 +69,16 @@ export function ChatBubbleRise({ children, className = '' }: { children: React.R
   const prefersReducedMotion = useReducedMotion()
   const { motion: Motion, variants } = useCopilotMotion({ variant: 'chatBubbleRise' })
 
+  // Convert readonly variants to mutable for framer-motion compatibility
+  const mutableVariants = prefersReducedMotion ? undefined : variants ? JSON.parse(JSON.stringify(variants)) : undefined
+
   return (
     <Motion.div
       className={className}
-      initial={prefersReducedMotion ? false : 'initial'}
+      initial={prefersReducedMotion ? undefined : 'initial'}
       animate="animate"
-      exit={prefersReducedMotion ? false : 'exit'}
-      variants={prefersReducedMotion ? {} : variants}
+      exit={prefersReducedMotion ? undefined : 'exit'}
+      variants={mutableVariants}
     >
       {children}
     </Motion.div>

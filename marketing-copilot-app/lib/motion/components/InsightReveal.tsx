@@ -27,6 +27,11 @@ export function InsightReveal({
   const prefersReducedMotion = useReducedMotion()
   const { motion: Motion, variants } = useCopilotMotion({ variant: 'insightReveal' })
 
+  // Convert readonly variants to mutable for framer-motion compatibility
+  const mutableVariants = prefersReducedMotion 
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : variants ? JSON.parse(JSON.stringify(variants)) : undefined
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -35,7 +40,7 @@ export function InsightReveal({
           initial="initial"
           animate="animate"
           exit="exit"
-          variants={prefersReducedMotion ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } } : variants}
+          variants={mutableVariants}
         >
           {/* Radial gradient glow at top left */}
           {!prefersReducedMotion && (

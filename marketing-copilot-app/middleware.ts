@@ -35,8 +35,13 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !session) {
+  // Protect authenticated routes (dashboard, ai, settings)
+  if (
+    (request.nextUrl.pathname.startsWith('/dashboard') ||
+      request.nextUrl.pathname.startsWith('/ai') ||
+      request.nextUrl.pathname.startsWith('/settings')) &&
+    !session
+  ) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
@@ -49,6 +54,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/:path*'],
+  matcher: ['/dashboard/:path*', '/ai/:path*', '/settings/:path*', '/auth/:path*'],
 };
 
