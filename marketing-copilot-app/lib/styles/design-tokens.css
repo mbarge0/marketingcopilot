@@ -1,0 +1,230 @@
+/**
+ * Marketing Co-Pilot Design Tokens
+ * Visual Identity Guide v1.0 - Light Mode System
+ * 
+ * Brand Essence: "Where insight meets motion."
+ */
+
+:root {
+  /* Primary Palette */
+  --copilot-primary: #0066FF;        /* Primary Blue (brand) - Intelligent + trustworthy */
+  --copilot-primary-hover: #0050D6;
+  --copilot-primary-light: #EFF6FF;
+  
+  --copilot-accent: #FF7A00;        /* Accent Orange - Signals optimization / action */
+  --copilot-accent-hover: #E66900;
+  --copilot-accent-light: #FFF7ED;
+  
+  /* Semantic Colors */
+  --copilot-success: #16A34A;       /* Success Green - Positive metrics (ROAS, CTR) */
+  --copilot-success-light: #D1FAE5;
+  --copilot-error: #DC2626;         /* Error Red - Validation, API errors */
+  --copilot-error-light: #FEE2E2;
+  --copilot-warning: #F59E0B;       /* Warning Amber */
+  --copilot-warning-light: #FEF3C7;
+  --copilot-info: #3B82F6;          /* Info Indigo - Agent responses, notifications */
+  --copilot-info-light: #DBEAFE;
+  
+  /* Neutral Palette */
+  --copilot-background: #F8FAFC;    /* Background Light - Main canvas */
+  --copilot-surface: #FFFFFF;       /* Surface Card - Tables, chat panes */
+  --copilot-border: #E2E8F0;        /* Border / Divider - Table lines, section rules */
+  --copilot-text: #1E293B;          /* Text Primary - Headings, body text */
+  --copilot-text-secondary: #64748B; /* Text Secondary - Labels, metadata */
+  --copilot-hover: #F1F5F9;         /* Hover Highlight - Row hover states */
+  
+  /* Insight Priority Colors */
+  --copilot-critical-bg: #FEE2E2;
+  --copilot-critical-text: #991B1B;
+  --copilot-opportunity-bg: #FEF3C7;
+  --copilot-opportunity-text: #92400E;
+  --copilot-info-bg: #DBEAFE;
+  --copilot-info-text: #1E40AF;
+  
+  /* Typography */
+  --copilot-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --copilot-font-heading: 'Satoshi', 'Recoleta', 'Inter', sans-serif;
+  --copilot-font-mono: 'Space Grotesk', 'IBM Plex Mono', monospace;
+  --copilot-font-chat: 'Inter', sans-serif;
+  
+  /* Spacing Scale (8px modular grid) */
+  --copilot-space-xs: 4px;
+  --copilot-space-sm: 8px;
+  --copilot-space-md: 16px;
+  --copilot-space-lg: 24px;
+  --copilot-space-xl: 32px;
+  --copilot-space-2xl: 48px;
+  
+  /* Border Radius */
+  --copilot-radius-sm: 6px;
+  --copilot-radius-md: 8px;
+  --copilot-radius-lg: 12px;
+  --copilot-radius-xl: 16px;
+  
+  /* Shadows (from Visual Identity Guide) */
+  --copilot-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --copilot-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --copilot-shadow-modal: 0 4px 12px rgba(15, 23, 42, 0.1);
+  
+  /* Transitions */
+  --copilot-transition-fast: 120ms ease-out;
+  --copilot-transition-base: 200ms ease-out;
+  --copilot-transition-smooth: 300ms ease-out;
+  
+  /* Layout */
+  --copilot-sidebar-width: 240px;
+  --copilot-content-max-width: 1400px;
+  --copilot-panel-width: 320px;
+}
+
+/* Agent Thinking Gradient Animation */
+@keyframes shimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.copilot-gradient-agent-thinking {
+  background: linear-gradient(90deg, #0066FF 0%, #FF7A00 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s infinite;
+}
+
+/* Insight Reveal Radial Gradient */
+.copilot-gradient-insight-reveal {
+  background: radial-gradient(circle at top left, rgba(0, 102, 255, 0.1), transparent 70%);
+}
+
+/* Typography Utilities */
+.copilot-text-metric {
+  font-family: var(--copilot-font-mono);
+  font-weight: 500;
+  letter-spacing: -0.01em; /* -1% */
+  color: var(--copilot-text);
+}
+
+.copilot-text-heading {
+  font-family: var(--copilot-font-heading);
+  font-weight: 600;
+  color: var(--copilot-text);
+}
+
+.copilot-text-chat {
+  font-family: var(--copilot-font-chat);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--copilot-text-secondary);
+}
+
+/* Component Styles */
+.copilot-card {
+  background: var(--copilot-surface);
+  border-radius: var(--copilot-radius-lg);
+  box-shadow: var(--copilot-shadow-card);
+  padding: var(--copilot-space-lg);
+  transition: box-shadow var(--copilot-transition-base);
+}
+
+.copilot-card:hover {
+  box-shadow: var(--copilot-shadow-hover);
+}
+
+.copilot-button-primary {
+  background: var(--copilot-primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--copilot-radius-md);
+  font-weight: 500;
+  transition: background-color var(--copilot-transition-fast);
+}
+
+.copilot-button-primary:hover {
+  background: var(--copilot-primary-hover);
+}
+
+.copilot-button-secondary {
+  background: transparent;
+  border: 1px solid var(--copilot-border);
+  color: var(--copilot-text);
+  padding: 12px 24px;
+  border-radius: var(--copilot-radius-md);
+  font-weight: 500;
+  transition: background-color var(--copilot-transition-fast);
+}
+
+.copilot-button-secondary:hover {
+  background: var(--copilot-hover);
+}
+
+.copilot-input {
+  border: 1px solid var(--copilot-border);
+  border-radius: var(--copilot-radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: border-color var(--copilot-transition-fast);
+}
+
+.copilot-input:focus {
+  outline: none;
+  border-color: var(--copilot-primary);
+  box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+}
+
+.copilot-input-error {
+  border-color: var(--copilot-error);
+}
+
+.copilot-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--copilot-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.copilot-badge-success {
+  background: var(--copilot-success-light);
+  color: var(--copilot-success);
+}
+
+.copilot-badge-warning {
+  background: var(--copilot-warning-light);
+  color: var(--copilot-warning);
+}
+
+.copilot-badge-error {
+  background: var(--copilot-error-light);
+  color: var(--copilot-error);
+}
+
+.copilot-table-row {
+  transition: background-color var(--copilot-transition-fast);
+}
+
+.copilot-table-row:hover {
+  background: var(--copilot-hover);
+}
+
+.copilot-table-row-selected {
+  background: var(--copilot-primary-light);
+}
+
+/* Insight Card Styles */
+.copilot-insight-critical {
+  border-left: 3px solid var(--copilot-error);
+  background: var(--copilot-critical-bg);
+}
+
+.copilot-insight-opportunity {
+  border-left: 3px solid var(--copilot-warning);
+  background: var(--copilot-opportunity-bg);
+}
+
+.copilot-insight-info {
+  border-left: 3px solid var(--copilot-info);
+  background: var(--copilot-info-bg);
+}
