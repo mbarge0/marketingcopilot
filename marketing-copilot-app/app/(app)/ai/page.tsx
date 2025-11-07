@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { AI_MODES, DEFAULT_MODE, AIModeKey } from '@/lib/ai/aiModes';
+import { AI_MODES, MORE_MODES, DEFAULT_MODE, AIModeKey } from '@/lib/ai/aiModes';
 import { AIContextProvider } from '@/lib/ai/context';
 import ModeTabs from '@/components/ai/ModeTabs';
 import ModeCanvas from '@/components/ai/ModeCanvas';
@@ -12,7 +12,14 @@ export default function AIWorkspacePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const modeParam = searchParams.get('mode') as AIModeKey | null;
-  const currentMode = modeParam && AI_MODES.find((m) => m.key === modeParam) ? modeParam : DEFAULT_MODE;
+  
+  // Check if mode is valid (either in AI_MODES or MORE_MODES)
+  const isValidMode = modeParam && (
+    AI_MODES.find((m) => m.key === modeParam) || 
+    MORE_MODES.find((m) => m.key === modeParam)
+  );
+  
+  const currentMode = isValidMode ? modeParam : DEFAULT_MODE;
 
   // Update URL if mode doesn't match
   useEffect(() => {

@@ -627,6 +627,106 @@
   - [ ] Contextual suggestions when no mode selected
   - [ ] Chat interface (enhanced version of existing ChatBox)
 
+- [ ] **16.2.3 "More" Dropdown Tab**
+  - [ ] Add "More" tab to the right of "Report" tab in ModeTabs
+  - [ ] Implement dropdown menu with additional verb-based modes
+  - [ ] Current tabs: Insights, Research, Analyze, Plan, Create, Report
+  - [ ] Verbs to add to "More" dropdown (14 total):
+    - [ ] **Allocate** - Budget allocation across campaigns/channels
+    - [ ] **Optimize** - Improve bids, budgets, targeting, creative
+    - [ ] **Design** - Ad creative, landing pages
+    - [ ] **Refresh** - Update stale creative
+    - [ ] **Monitor** - Check campaign status, spend, performance
+    - [ ] **Compare** - Campaigns vs each other, periods vs periods, actual vs target
+    - [ ] **Diagnose** - Find root cause of performance issues
+    - [ ] **Audit** - Review account health, policy compliance, settings
+    - [ ] **Benchmark** - Compare against industry standards, competitors
+    - [ ] **Forecast** - Predict future performance, budget needs
+    - [ ] **Strategize** - Long-term optimization approach
+    - [ ] **Plan** - Campaign strategy, budget allocation, timeline
+    - [ ] **Explain** - Interpret results for non-technical stakeholders
+    - [ ] **Learn** - Understand new features, best practices
+  - [ ] Dropdown should show icon + label for each verb
+  - [ ] Clicking a verb from dropdown navigates to that mode
+  - [ ] URL structure: `/ai?mode=allocate`, `/ai?mode=optimize`, etc.
+  - [ ] Active state: If current mode is from "More", highlight "More" tab and show active verb in dropdown
+  - [ ] Dropdown should be searchable/filterable for easy access to 14 verbs
+
+- [ ] **16.2.4 Additional Verb Modes Implementation**
+  - [ ] **Allocate Mode** (`components/ai/modes/AllocateMode.tsx`)
+    - [ ] Purpose: Budget allocation across campaigns/channels
+    - [ ] ContentCards: Current Allocation, Recommended Changes, Impact Forecast
+    - [ ] Chat integration: "Allocate $10K across campaigns", "Reallocate budget"
+    - [ ] Data source: Campaign budgets, performance metrics
+  - [ ] **Optimize Mode** (`components/ai/modes/OptimizeMode.tsx`)
+    - [ ] Purpose: Improve bids, budgets, targeting, creative
+    - [ ] ContentCards: Optimization Opportunities, Bid Recommendations, A/B Test Results
+    - [ ] Chat integration: "Optimize campaign X", "Improve bids for keywords"
+    - [ ] Data source: Performance metrics, Google Ads optimization score
+  - [ ] **Design Mode** (`components/ai/modes/DesignMode.tsx`)
+    - [ ] Purpose: Ad creative, landing pages
+    - [ ] ContentCards: Creative Library, Design Templates, Asset Generator
+    - [ ] Chat integration: "Design ad for product X", "Create landing page"
+    - [ ] Data source: Creative assets, templates
+  - [ ] **Refresh Mode** (`components/ai/modes/RefreshMode.tsx`)
+    - [ ] Purpose: Update stale creative
+    - [ ] ContentCards: Stale Creative Detection, Refresh Recommendations, Update Queue
+    - [ ] Chat integration: "Refresh stale ads", "Update creative for campaign X"
+    - [ ] Data source: Ad performance, creative age, CTR trends
+  - [ ] **Monitor Mode** (`components/ai/modes/MonitorMode.tsx`)
+    - [ ] Purpose: Check campaign status, spend, performance
+    - [ ] ContentCards: Campaign Status Dashboard, Real-time Metrics, Alerts Feed
+    - [ ] Chat integration: "Monitor campaign X", "Show me current spend"
+    - [ ] Data source: Campaign status, real-time metrics, alerts
+  - [ ] **Compare Mode** (`components/ai/modes/CompareMode.tsx`)
+    - [ ] Purpose: Campaigns vs each other, periods vs periods, actual vs target
+    - [ ] ContentCards: Comparison Selector, Side-by-Side Metrics, Trend Analysis
+    - [ ] Chat integration: "Compare campaign A vs B", "Compare this week vs last week"
+    - [ ] Data source: Campaign performance, historical data, targets
+  - [ ] **Diagnose Mode** (`components/ai/modes/DiagnoseMode.tsx`)
+    - [ ] Purpose: Find root cause of performance issues
+    - [ ] ContentCards: Issue Detection, Root Cause Analysis, Fix Recommendations
+    - [ ] Chat integration: "Why did CPA spike?", "Diagnose campaign X performance"
+    - [ ] Data source: Performance anomalies, error logs, campaign history
+  - [ ] **Audit Mode** (`components/ai/modes/AuditMode.tsx`)
+    - [ ] Purpose: Review account health, policy compliance, settings
+    - [ ] ContentCards: Account Health Score, Policy Violations, Settings Review
+    - [ ] Chat integration: "Audit my account", "Check policy compliance"
+    - [ ] Data source: Account settings, policy status, Google Ads API
+  - [ ] **Benchmark Mode** (`components/ai/modes/BenchmarkMode.tsx`)
+    - [ ] Purpose: Compare against industry standards, competitors
+    - [ ] ContentCards: Industry Benchmarks, Competitor Comparison, Performance Gaps
+    - [ ] Chat integration: "Benchmark my campaigns", "Compare to industry average"
+    - [ ] Data source: Industry data, competitor intelligence, performance metrics
+  - [ ] **Forecast Mode** (`components/ai/modes/ForecastMode.tsx`)
+    - [ ] Purpose: Predict future performance, budget needs
+    - [ ] ContentCards: Performance Forecast, Budget Projections, Trend Predictions
+    - [ ] Chat integration: "Forecast next month's performance", "Predict budget needs"
+    - [ ] Data source: Historical performance, trend analysis, ML predictions
+  - [ ] **Strategize Mode** (`components/ai/modes/StrategizeMode.tsx`)
+    - [ ] Purpose: Long-term optimization approach
+    - [ ] ContentCards: Strategy Builder, Long-term Goals, Roadmap Planner
+    - [ ] Chat integration: "Create Q2 strategy", "Strategize for product launch"
+    - [ ] Data source: Campaign goals, historical performance, market trends
+  - [ ] **Plan Mode** (`components/ai/modes/PlanMode.tsx`)
+    - [ ] Purpose: Campaign strategy, budget allocation, timeline
+    - [ ] ContentCards: Strategy Builder, Budget Planner, Timeline View
+    - [ ] Chat integration: "Plan Q2 campaign strategy", "Create budget plan"
+    - [ ] Data source: Campaign goals, historical performance, budget data
+  - [ ] **Explain Mode** (`components/ai/modes/ExplainMode.tsx`)
+    - [ ] Purpose: Interpret results for non-technical stakeholders
+    - [ ] ContentCards: Plain Language Explanations, Visual Summaries, Key Takeaways
+    - [ ] Chat integration: "Explain ROAS to my boss", "What does this mean?"
+    - [ ] Data source: Performance metrics, AI-generated explanations
+  - [ ] **Learn Mode** (`components/ai/modes/LearnMode.tsx`)
+    - [ ] Purpose: Understand new features, best practices
+    - [ ] ContentCards: Feature Guides, Best Practices, Tutorial Library
+    - [ ] Chat integration: "How do I use Performance Max?", "Teach me about bidding"
+    - [ ] Data source: Documentation, tutorials, best practice guides
+  - [ ] Each mode should follow the same ContentCard pattern as existing modes
+  - [ ] Each mode should have mode-specific suggestions and placeholders
+  - [ ] Each mode should integrate with chat bar for natural language commands
+
 ### 16.3 Settings Mode
 
 - [ ] **16.3.1 Create Settings Page**
