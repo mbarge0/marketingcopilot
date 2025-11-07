@@ -32,4 +32,4 @@ dist/
 # Lockfiles (optional if you prefer one package manager)
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
+pnpm-lock.yamlnext-env.d.ts
