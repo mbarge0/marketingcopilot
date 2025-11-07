@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import MetaMenu from '@/components/ui/meta-menu/MetaMenu';
 import LeftNavigation from '@/components/dashboard/LeftNavigation';
+import AILayoutWrapper from '@/components/ai/AILayoutWrapper';
 
 export default async function AuthenticatedLayout({
   children,
@@ -22,9 +23,9 @@ export default async function AuthenticatedLayout({
       <MetaMenu />
       <div className="ml-16 flex flex-1">
         <LeftNavigation />
-        <main className="flex-1 overflow-y-auto">
+        <AILayoutWrapper>
           {children}
-        </main>
+        </AILayoutWrapper>
       </div>
     </div>
   );

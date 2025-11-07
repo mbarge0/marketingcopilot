@@ -17,10 +17,7 @@ export default function LeftNavigation() {
 
   return (
     <div className="w-64 border-r border-gray-200 bg-white">
-      <div className="p-4">
-        <h2 className="text-lg font-semibold text-gray-900">Navigation</h2>
-      </div>
-      <nav className="px-2">
+      <nav className="px-2 py-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (

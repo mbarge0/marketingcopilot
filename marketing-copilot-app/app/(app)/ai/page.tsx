@@ -1,78 +1,49 @@
 'use client';
 
-import { useState } from 'react';
-import AIPanel from '@/components/ui/ai-panel/AIPanel';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { AI_MODES, MORE_MODES, DEFAULT_MODE, AIModeKey } from '@/lib/ai/aiModes';
+import { AIContextProvider } from '@/lib/ai/context';
+import ModeTabs from '@/components/ai/ModeTabs';
+import ModeCanvas from '@/components/ai/ModeCanvas';
+import ChatBar from '@/components/ai/shared/ChatBar';
 
-export default function AIModePage() {
-  const [fullScreen, setFullScreen] = useState(false);
+export default function AIWorkspacePage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const modeParam = searchParams.get('mode') as AIModeKey | null;
+  
+  // Check if mode is valid (either in AI_MODES or MORE_MODES)
+  const isValidMode = modeParam && (
+    AI_MODES.find((m) => m.key === modeParam) || 
+    MORE_MODES.find((m) => m.key === modeParam)
+  );
+  
+  const currentMode = isValidMode ? modeParam : DEFAULT_MODE;
 
-  if (fullScreen) {
-    return (
-      <div className="fixed inset-0 z-50 bg-white">
-        <AIPanel fullScreen={true} onToggleFullScreen={() => setFullScreen(false)} />
-      </div>
-    );
-  }
+  // Update URL if mode doesn't match
+  useEffect(() => {
+    if (!modeParam || modeParam !== currentMode) {
+      router.replace(`/ai?mode=${currentMode}`, { scroll: false });
+    }
+  }, [modeParam, currentMode, router]);
 
   return (
-    <div className="flex h-full">
-      <div className="flex-1 p-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>AI Workspace</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="text-center py-12 text-gray-500">
-                <div className="text-6xl mb-4">🧠</div>
-                <h2 className="text-2xl font-semibold mb-2">AI Assistant Workspace</h2>
-                <p className="mb-6">
-                  Use the AI panel on the right to analyze campaigns, research keywords, or generate content.
-                </p>
-                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-                  <div className="p-4 border border-gray-200 rounded-lg">
-                    <div className="text-2xl mb-2">📊</div>
-                    <h3 className="font-semibold mb-1">Analyze</h3>
-                    <p className="text-sm text-gray-600">
-                      Get insights about campaign performance
-                    </p>
-                  </div>
-                  <div className="p-4 border border-gray-200 rounded-lg">
-                    <div className="text-2xl mb-2">🔍</div>
-                    <h3 className="font-semibold mb-1">Research</h3>
-                    <p className="text-sm text-gray-600">
-                      Research competitors and keywords
-                    </p>
-                  </div>
-                  <div className="p-4 border border-gray-200 rounded-lg">
-                    <div className="text-2xl mb-2">✨</div>
-                    <h3 className="font-semibold mb-1">Generate</h3>
-                    <p className="text-sm text-gray-600">
-                      Create campaigns and ad copy
-                    </p>
-                  </div>
-                </div>
-              </div>
+    <AIContextProvider>
+      <div className="flex flex-col h-full bg-gray-50 relative">
+        {/* Top Tabs */}
+        <ModeTabs currentMode={currentMode} />
 
-              {/* TODO: Add workspace features */}
-              <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  <strong>TODO:</strong> Add workspace features such as:
-                  <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>Campaign analysis results display</li>
-                    <li>Research findings visualization</li>
-                    <li>Generated content preview</li>
-                    <li>History of AI interactions</li>
-                  </ul>
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Main Canvas Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto pb-32">
+          <ModeCanvas mode={currentMode} />
+        </div>
+
+        {/* Bottom Chat Bar - Fixed */}
+        <div className="fixed bottom-0 left-[320px] right-0 z-20 bg-white border-t border-gray-200 shadow-lg">
+          <ChatBar mode={currentMode} />
+        </div>
       </div>
-      <AIPanel fullScreen={false} onToggleFullScreen={() => setFullScreen(true)} />
-    </div>
+    </AIContextProvider>
   );
 }
-
