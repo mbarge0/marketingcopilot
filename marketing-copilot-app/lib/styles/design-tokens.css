@@ -1,0 +1,226 @@
+/**
+ * Marketing Co-Pilot Design Tokens
+ * Performance Marketer Interface Design System
+ */
+
+:root {
+  /* Brand Colors - Primary */
+  --copilot-primary: #0066FF;        /* Electric Azure */
+  --copilot-primary-hover: #0052CC;
+  --copilot-primary-light: #EFF6FF;
+  
+  --copilot-secondary: #FF7A00;      /* Vibrant Orange */
+  --copilot-secondary-hover: #E66900;
+  --copilot-secondary-light: #FFF7ED;
+  
+  /* Semantic Colors */
+  --copilot-success: #16A34A;        /* Google-like Green */
+  --copilot-success-light: #D1FAE5;
+  --copilot-error: #DC2626;          /* Standard Red */
+  --copilot-error-light: #FEE2E2;
+  --copilot-warning: #F59E0B;        /* Amber */
+  --copilot-warning-light: #FEF3C7;
+  --copilot-info: #3B82F6;          /* Info Indigo */
+  --copilot-info-light: #DBEAFE;
+  
+  /* Neutral Palette */
+  --copilot-background: #F8FAFC;     /* Soft Cloud White */
+  --copilot-surface: #FFFFFF;        /* Pure White */
+  --copilot-text: #1E293B;           /* Slate */
+  --copilot-text-muted: #475569;    /* Slate 600 */
+  --copilot-border: #E2E8F0;         /* Slate 200 */
+  --copilot-hover: #F1F5F9;          /* Slate 50 */
+  
+  /* Insight Priority Colors */
+  --copilot-critical-bg: #FEE2E2;
+  --copilot-critical-text: #991B1B;
+  --copilot-opportunity-bg: #FEF3C7;
+  --copilot-opportunity-text: #92400E;
+  --copilot-info-bg: #DBEAFE;
+  --copilot-info-text: #1E40AF;
+  
+  /* Typography */
+  --copilot-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --copilot-font-heading: 'Satoshi', 'Inter', sans-serif;
+  --copilot-font-mono: 'Space Grotesk', 'IBM Plex Mono', monospace;
+  --copilot-font-chat: 'Inter', sans-serif;
+  
+  /* Spacing Scale */
+  --copilot-space-xs: 4px;
+  --copilot-space-sm: 8px;
+  --copilot-space-md: 16px;
+  --copilot-space-lg: 24px;
+  --copilot-space-xl: 32px;
+  --copilot-space-2xl: 48px;
+  
+  /* Border Radius */
+  --copilot-radius-sm: 6px;
+  --copilot-radius-md: 8px;
+  --copilot-radius-lg: 12px;
+  --copilot-radius-xl: 16px;
+  
+  /* Shadows */
+  --copilot-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --copilot-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --copilot-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --copilot-shadow-xl: 0 10px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --copilot-transition-fast: 150ms ease-out;
+  --copilot-transition-base: 200ms ease-out;
+  --copilot-transition-smooth: 300ms ease-out;
+  
+  /* Layout */
+  --copilot-sidebar-width: 240px;
+  --copilot-content-max-width: 1400px;
+  --copilot-panel-width: 320px;
+}
+
+/* Gradient Definitions */
+.copilot-gradient-primary {
+  background: linear-gradient(135deg, #0066FF 0%, #8B5CF6 100%);
+}
+
+.copilot-gradient-success {
+  background: linear-gradient(135deg, #16A34A 0%, #10B981 100%);
+}
+
+.copilot-gradient-energy {
+  background: linear-gradient(135deg, #FF7A00 0%, #F59E0B 100%);
+}
+
+.copilot-gradient-subtle {
+  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+}
+
+/* Typography Utilities */
+.copilot-text-metric {
+  font-family: var(--copilot-font-mono);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--copilot-text);
+}
+
+.copilot-text-heading {
+  font-family: var(--copilot-font-heading);
+  font-weight: 600;
+  color: var(--copilot-text);
+}
+
+.copilot-text-chat {
+  font-family: var(--copilot-font-chat);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--copilot-text-muted);
+}
+
+/* Component Styles */
+.copilot-card {
+  background: var(--copilot-surface);
+  border-radius: var(--copilot-radius-lg);
+  box-shadow: var(--copilot-shadow-md);
+  padding: var(--copilot-space-lg);
+  transition: box-shadow var(--copilot-transition-base);
+}
+
+.copilot-card:hover {
+  box-shadow: var(--copilot-shadow-lg);
+}
+
+.copilot-button-primary {
+  background: var(--copilot-primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--copilot-radius-md);
+  font-weight: 500;
+  transition: background-color var(--copilot-transition-fast);
+}
+
+.copilot-button-primary:hover {
+  background: var(--copilot-primary-hover);
+}
+
+.copilot-button-secondary {
+  background: transparent;
+  border: 1px solid var(--copilot-border);
+  color: var(--copilot-text);
+  padding: 12px 24px;
+  border-radius: var(--copilot-radius-md);
+  font-weight: 500;
+  transition: background-color var(--copilot-transition-fast);
+}
+
+.copilot-button-secondary:hover {
+  background: var(--copilot-hover);
+}
+
+.copilot-input {
+  border: 1px solid var(--copilot-border);
+  border-radius: var(--copilot-radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: border-color var(--copilot-transition-fast);
+}
+
+.copilot-input:focus {
+  outline: none;
+  border-color: var(--copilot-primary);
+  box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+}
+
+.copilot-input-error {
+  border-color: var(--copilot-error);
+}
+
+.copilot-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--copilot-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.copilot-badge-success {
+  background: var(--copilot-success-light);
+  color: var(--copilot-success);
+}
+
+.copilot-badge-warning {
+  background: var(--copilot-warning-light);
+  color: var(--copilot-warning);
+}
+
+.copilot-badge-error {
+  background: var(--copilot-error-light);
+  color: var(--copilot-error);
+}
+
+.copilot-table-row {
+  transition: background-color var(--copilot-transition-fast);
+}
+
+.copilot-table-row:hover {
+  background: var(--copilot-hover);
+}
+
+.copilot-table-row-selected {
+  background: var(--copilot-primary-light);
+}
+
+/* Insight Card Styles */
+.copilot-insight-critical {
+  border-left: 3px solid var(--copilot-error);
+  background: var(--copilot-critical-bg);
+}
+
+.copilot-insight-opportunity {
+  border-left: 3px solid var(--copilot-warning);
+  background: var(--copilot-opportunity-bg);
+}
+
+.copilot-insight-info {
+  border-left: 3px solid var(--copilot-info);
+  background: var(--copilot-info-bg);
+}
+
