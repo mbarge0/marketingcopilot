@@ -4,7 +4,6 @@ import { useState } from 'react';
 import CampaignTable from '@/components/dashboard/CampaignTable';
 import InsightsMode from '@/components/dashboard/InsightsMode';
 import CreateMode from '@/components/dashboard/CreateMode';
-import ChatBox from '@/components/dashboard/ChatBox';
 import { Button } from '@/components/ui/button';
 
 type DashboardMode = 'table' | 'insights' | 'create';
@@ -74,14 +73,13 @@ export default function DashboardContent() {
           </div>
         </div>
       </div>
-      <main className="flex-1 overflow-y-auto pb-24">
+      <main className="flex-1 overflow-y-auto pb-32">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {mode === 'table' && <CampaignTable />}
           {mode === 'insights' && <InsightsMode />}
           {mode === 'create' && <CreateMode />}
         </div>
       </main>
-      <ChatBox />
     </div>
   );
 }

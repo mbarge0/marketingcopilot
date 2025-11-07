@@ -9,9 +9,18 @@ export * from './motion.config'
 // Hooks
 export * from './hooks'
 
-// Components
+// Base Components
 export { ChatPulse, ChatInputFlash, ChatBubbleRise } from './components/ChatPulse'
 export { InsightReveal } from './components/InsightReveal'
 export { TableRefresh, TableRow, MetricCounter } from './components/TableRefresh'
 export { ConfettiCelebration, SuccessBadgeGlow, CheckmarkDraw } from './components/ConfettiCelebration'
 export { ModeTransition, Shake, ProgressBar, Toast } from './components/ModeTransition'
+
+// Agentic Animation System
+export * from './agentic'
+export {
+  AgentStatus,
+  AgentWaveform,
+  AgentProgress,
+  AgentThinking,
+} from '@/components/agentic'
