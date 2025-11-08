@@ -127,12 +127,6 @@ export const MORE_MODES: AIMode[] = [
     verbs: ['Strategize', 'Plan', 'Design'],
   },
   {
-    key: 'plan',
-    label: 'Plan',
-    icon: Calendar,
-    verbs: ['Plan', 'Schedule', 'Organize'],
-  },
-  {
     key: 'explain',
     label: 'Explain',
     icon: HelpCircle,

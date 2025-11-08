@@ -33,3 +33,5 @@ dist/
 package-lock.json
 yarn.lock
 pnpm-lock.yamlnext-env.d.ts
+../core/docs/screenshots/
+../package-lock.json
