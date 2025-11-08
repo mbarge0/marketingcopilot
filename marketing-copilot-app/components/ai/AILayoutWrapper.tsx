@@ -8,7 +8,6 @@ export default function AILayoutWrapper({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const isAIMode = pathname?.startsWith('/ai');
   const isDashboardMode = pathname?.startsWith('/dashboard') || pathname === '/dashboard';
-  const [isChatOpen, setIsChatOpen] = useState(true);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
 
   // Listen for sidebar minimize state changes (via custom event)
@@ -25,21 +24,18 @@ export default function AILayoutWrapper({ children }: { children: React.ReactNod
   if (isAIMode || isDashboardMode) {
     return (
       <div className="flex flex-1 overflow-hidden">
-        {/* Main Content Area - adjust margin for right sidebar */}
+        {/* Main Content Area - adjust margin for right sidebar (always present) */}
         <main 
           className={`
             flex-1 overflow-y-auto transition-all duration-300 ease-in-out
-            ${isChatOpen && !isChatMinimized ? 'lg:mr-96 md:mr-80 sm:mr-0' : 'mr-16'}
+            ${!isChatMinimized ? 'lg:mr-96 md:mr-80 sm:mr-0' : 'mr-16'}
           `}
         >
           {children}
         </main>
         
-        {/* Right AI Chat Panel */}
-        <RightAIChatPanel
-          isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
-        />
+        {/* Right AI Chat Panel - Always rendered */}
+        <RightAIChatPanel />
       </div>
     );
   }

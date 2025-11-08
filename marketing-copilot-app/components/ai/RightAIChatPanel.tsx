@@ -4,12 +4,13 @@
  * Right AI Chat Panel
  * Persistent sidebar on the right side (similar to LeftNavigation pattern)
  * Displays AI assistant chat interface with message history and agent status
+ * Supports multiple chat tabs for parallel conversations
  */
 
 import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Send, X, Minimize2, Maximize2, Sparkles } from 'lucide-react';
+import { Send, X, Minimize2, Maximize2, Sparkles, Plus, Clock } from 'lucide-react';
 import { getChatContext, getChatSuggestions } from '@/lib/ai/chatSuggestions';
 import { AgentThinking } from '@/components/agentic';
 import { AgentPhase, AgentActivity } from '@/lib/motion/agentic';
@@ -21,6 +22,13 @@ interface Message {
   timestamp: Date;
 }
 
+interface ChatTab {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+}
+
 interface RightAIChatPanelProps {
   /**
    * Optional context override (for AI Workspace modes)
@@ -30,31 +38,35 @@ interface RightAIChatPanelProps {
    * Optional mode for AI Workspace
    */
   mode?: string;
-  /**
-   * Whether to show the panel (for responsive behavior)
-   */
-  isOpen?: boolean;
-  /**
-   * Callback to close panel (for mobile)
-   */
-  onClose?: () => void;
 }
 
 export default function RightAIChatPanel({
   context,
   mode,
-  isOpen = true,
-  onClose,
 }: RightAIChatPanelProps) {
   const pathname = usePathname();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agentPhase, setAgentPhase] = useState<AgentPhase>('idle');
   const [agentActivity, setAgentActivity] = useState<AgentActivity>('planning');
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Multi-tab state
+  const [tabs, setTabs] = useState<ChatTab[]>([
+    {
+      id: '1',
+      title: 'New Chat',
+      messages: [],
+      createdAt: new Date(),
+    },
+  ]);
+  const [activeTabId, setActiveTabId] = useState('1');
+
+  // Get active tab
+  const activeTab = tabs.find((tab) => tab.id === activeTabId) || tabs[0];
+  const messages = activeTab.messages;
 
   // Determine context
   const chatContext = context || getChatContext(pathname, mode);
@@ -99,6 +111,44 @@ export default function RightAIChatPanel({
     window.dispatchEvent(event);
   }, [isMinimized]);
 
+  // Tab management functions
+  const createNewTab = () => {
+    const newTab: ChatTab = {
+      id: Date.now().toString(),
+      title: 'New Chat',
+      messages: [],
+      createdAt: new Date(),
+    };
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
+  const closeTab = (tabId: string) => {
+    if (tabs.length === 1) return; // Keep at least one tab
+    const newTabs = tabs.filter((tab) => tab.id !== tabId);
+    setTabs(newTabs);
+    if (activeTabId === tabId) {
+      setActiveTabId(newTabs[0].id);
+    }
+  };
+
+  const updateTabMessages = (tabId: string, newMessages: Message[]) => {
+    setTabs((prev) =>
+      prev.map((tab) =>
+        tab.id === tabId
+          ? {
+              ...tab,
+              messages: newMessages,
+              title:
+                tab.title === 'New Chat' && newMessages.length > 0
+                  ? newMessages[0].content.slice(0, 30) + '...'
+                  : tab.title,
+            }
+          : tab
+      )
+    );
+  };
+
   const handleSuggestionClick = (suggestion: string) => {
     setMessage(suggestion);
   };
@@ -115,7 +165,8 @@ export default function RightAIChatPanel({
     };
 
     setMessage('');
-    setMessages((prev) => [...prev, userMessageObj]);
+    const updatedMessages = [...messages, userMessageObj];
+    updateTabMessages(activeTabId, updatedMessages);
     setIsSubmitting(true);
 
     try {
@@ -147,7 +198,7 @@ export default function RightAIChatPanel({
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMessageObj]);
+      updateTabMessages(activeTabId, [...updatedMessages, assistantMessageObj]);
     } catch (error) {
       console.error('Chat error:', error);
 
@@ -157,13 +208,11 @@ export default function RightAIChatPanel({
         content: 'Sorry, I encountered an error. Please try again.',
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMessageObj]);
+      updateTabMessages(activeTabId, [...updatedMessages, errorMessageObj]);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (!isOpen) return null;
 
   return (
     <>
@@ -223,17 +272,6 @@ export default function RightAIChatPanel({
                 >
                   <Minimize2 className="w-4 h-4" />
                 </Button>
-                {onClose && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="h-8 w-8 p-0 hover:bg-white/50"
-                    title="Close"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
             </motion.div>
           ) : (
@@ -258,6 +296,57 @@ export default function RightAIChatPanel({
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Tabs - Only show when expanded */}
+      <AnimatePresence mode="wait">
+        {!isMinimized && tabs.length > 0 && (
+          <motion.div
+            key="tabs"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="border-b border-gray-200 bg-gray-50 overflow-x-auto"
+          >
+            <div className="flex items-center gap-1 p-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTabId(tab.id)}
+                  className={`
+                    flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium
+                    transition-colors group relative
+                    ${
+                      activeTabId === tab.id
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }
+                  `}
+                >
+                  <span className="truncate max-w-[120px]">{tab.title}</span>
+                  {tabs.length > 1 && (
+                    <X
+                      className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeTab(tab.id);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={createNewTab}
+                className="h-7 w-7 p-0 ml-1"
+                title="New chat"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence mode="wait">
         {!isMinimized && (
@@ -393,7 +482,7 @@ export default function RightAIChatPanel({
         )}
       </AnimatePresence>
 
-      {/* Minimized State */}
+      {/* Minimized State - Persistent Ribbon */}
       <AnimatePresence mode="wait">
         {isMinimized && (
           <motion.div
@@ -402,21 +491,23 @@ export default function RightAIChatPanel({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, delay: 0.1 }}
-            className="flex-1 flex flex-col items-center justify-center gap-6 py-8"
+            className="flex-1 flex flex-col items-center gap-4 py-8"
           >
+            {/* Expand Button - Sparkles Icon */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              className="relative"
             >
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsMinimized(false)}
-                className="flex flex-col items-center gap-3 h-auto py-4 px-2 hover:bg-blue-50 rounded-lg"
-                title="Expand sidebar"
+                className="flex flex-col items-center gap-2 h-auto py-3 px-2 hover:bg-blue-50 rounded-lg"
+                title="Expand AI Co-Pilot"
               >
                 <Sparkles className="w-6 h-6 text-blue-600" />
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-0.5">
                   {['A', 'I'].map((letter, idx) => (
                     <span key={idx} className="text-xs font-semibold text-gray-600">
                       {letter}
@@ -424,19 +515,71 @@ export default function RightAIChatPanel({
                   ))}
                 </div>
               </Button>
+              
+              {/* Message count indicator */}
+              {messages.length > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center"
+                >
+                  <span className="text-xs font-semibold text-white">
+                    {messages.length > 9 ? '9+' : messages.length}
+                  </span>
+                </motion.div>
+              )}
             </motion.div>
-            
-            {/* Message count indicator (if there are messages) */}
-            {messages.length > 0 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute top-20 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center"
+
+            {/* Divider */}
+            <div className="w-8 h-px bg-gray-200" />
+
+            {/* New Chat Button - Plus Icon */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={createNewTab}
+                className="h-10 w-10 p-0 hover:bg-green-50 rounded-lg"
+                title="New chat (run in background)"
               >
-                <span className="text-xs font-semibold text-white">
-                  {messages.length > 9 ? '9+' : messages.length}
-                </span>
-              </motion.div>
+                <Plus className="w-5 h-5 text-green-600" />
+              </Button>
+            </motion.div>
+
+            {/* History Button - Clock Icon (Disabled for now) */}
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled
+                className="h-10 w-10 p-0 rounded-lg opacity-40 cursor-not-allowed"
+                title="Chat history (coming soon)"
+              >
+                <Clock className="w-5 h-5 text-gray-400" />
+              </Button>
+            </motion.div>
+
+            {/* Tab Indicators - Show dots for multiple tabs */}
+            {tabs.length > 1 && (
+              <>
+                <div className="w-8 h-px bg-gray-200 mt-2" />
+                <div className="flex flex-col gap-2">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTabId(tab.id);
+                        setIsMinimized(false);
+                      }}
+                      className={`
+                        w-2 h-2 rounded-full transition-colors
+                        ${activeTabId === tab.id ? 'bg-blue-600' : 'bg-gray-300 hover:bg-gray-400'}
+                      `}
+                      title={tab.title}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </motion.div>
         )}
