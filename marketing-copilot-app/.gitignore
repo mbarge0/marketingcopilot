@@ -33,3 +33,4 @@ dist/
 package-lock.json
 yarn.lock
 pnpm-lock.yamlnext-env.d.ts
+node_modules/
