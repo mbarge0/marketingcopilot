@@ -1,48 +1,80 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { AI_MODES, MORE_MODES, DEFAULT_MODE, AIModeKey } from '@/lib/ai/aiModes';
+import { useState } from 'react';
 import { AIContextProvider } from '@/lib/ai/context';
-import ModeTabs from '@/components/ai/ModeTabs';
-import ModeCanvas from '@/components/ai/ModeCanvas';
+import AIPanel from '@/components/ui/ai-panel/AIPanel';
+import AIWorkspace from '@/components/ai/AIWorkspace';
 import ChatBar from '@/components/ai/shared/ChatBar';
 
 export default function AIWorkspacePage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const modeParam = searchParams.get('mode') as AIModeKey | null;
-  
-  // Check if mode is valid (either in AI_MODES or MORE_MODES)
-  const isValidMode = modeParam && (
-    AI_MODES.find((m) => m.key === modeParam) || 
-    MORE_MODES.find((m) => m.key === modeParam)
-  );
-  
-  const currentMode = isValidMode ? modeParam : DEFAULT_MODE;
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Update URL if mode doesn't match
-  useEffect(() => {
-    if (!modeParam || modeParam !== currentMode) {
-      router.replace(`/ai?mode=${currentMode}`, { scroll: false });
-    }
-  }, [modeParam, currentMode, router]);
+  const togglePanel = () => {
+    setIsPanelOpen(!isPanelOpen);
+  };
+
+  const toggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
+  };
+
+  if (isFullScreen) {
+    return (
+      <AIContextProvider>
+        <div className="fixed inset-0 z-50 bg-white">
+          <AIPanel 
+            fullScreen={true} 
+            onToggleFullScreen={toggleFullScreen}
+            isOpen={true}
+            onToggle={togglePanel}
+          />
+        </div>
+      </AIContextProvider>
+    );
+  }
 
   return (
     <AIContextProvider>
-      <div className="flex flex-col h-full bg-gray-50 relative">
-        {/* Top Tabs */}
-        <ModeTabs currentMode={currentMode} />
-
-        {/* Main Canvas Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto pb-32">
-          <ModeCanvas mode={currentMode} />
+      <div className="flex h-screen bg-gray-50 relative overflow-hidden">
+        {/* Main Workspace Area */}
+        <div className={`flex-1 flex flex-col transition-all duration-300 ${isPanelOpen ? 'mr-96' : 'mr-0'}`}>
+          <div className="flex-1 overflow-hidden">
+            <AIWorkspace />
+          </div>
+          
+          {/* Bottom Chat Bar - Fixed */}
+          <div 
+            className="fixed bottom-0 left-16 z-20 bg-white border-t border-gray-200 shadow-lg transition-all duration-300"
+            style={{ right: isPanelOpen ? '384px' : '0' }}
+          >
+            <ChatBar />
+          </div>
         </div>
 
-        {/* Bottom Chat Bar - Fixed */}
-        <div className="fixed bottom-0 left-[320px] right-0 z-20 bg-white border-t border-gray-200 shadow-lg">
-          <ChatBar mode={currentMode} />
-        </div>
+        {/* Right Side AI Panel */}
+        {isPanelOpen && (
+          <div className="fixed right-0 top-0 bottom-0 w-96 bg-white border-l border-gray-200 z-30 shadow-lg">
+            <AIPanel 
+              fullScreen={false}
+              onToggleFullScreen={toggleFullScreen}
+              isOpen={isPanelOpen}
+              onToggle={togglePanel}
+            />
+          </div>
+        )}
+
+        {/* Panel Toggle Button (when closed) */}
+        {!isPanelOpen && (
+          <button
+            onClick={togglePanel}
+            className="fixed right-4 top-1/2 -translate-y-1/2 z-30 bg-blue-600 text-white p-3 rounded-l-lg shadow-lg hover:bg-blue-700 transition-colors"
+            title="Open AI Panel"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
       </div>
     </AIContextProvider>
   );

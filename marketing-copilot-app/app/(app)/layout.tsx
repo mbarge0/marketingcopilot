@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import MetaMenu from '@/components/ui/meta-menu/MetaMenu';
 import LeftNavigation from '@/components/dashboard/LeftNavigation';
 import AILayoutWrapper from '@/components/ai/AILayoutWrapper';
+import ConditionalNavigation from '@/components/shared/ConditionalNavigation';
 
 export default async function AuthenticatedLayout({
   children,
@@ -22,7 +23,7 @@ export default async function AuthenticatedLayout({
     <div className="flex min-h-screen bg-gray-50">
       <MetaMenu />
       <div className="ml-16 flex flex-1">
-        <LeftNavigation />
+        <ConditionalNavigation />
         <AILayoutWrapper>
           {children}
         </AILayoutWrapper>

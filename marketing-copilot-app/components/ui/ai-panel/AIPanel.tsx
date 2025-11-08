@@ -3,15 +3,23 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { X, Maximize2, Minimize2 } from 'lucide-react';
 
 type AIMode = 'analyze' | 'research' | 'generate' | null;
 
 interface AIPanelProps {
   fullScreen?: boolean;
   onToggleFullScreen?: () => void;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-export default function AIPanel({ fullScreen = false, onToggleFullScreen }: AIPanelProps) {
+export default function AIPanel({ 
+  fullScreen = false, 
+  onToggleFullScreen,
+  isOpen = true,
+  onToggle
+}: AIPanelProps) {
   const [mode, setMode] = useState<AIMode>(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
@@ -52,23 +60,37 @@ export default function AIPanel({ fullScreen = false, onToggleFullScreen }: AIPa
 
   return (
     <div
-      className={`bg-white border-l border-gray-200 flex flex-col ${
-        fullScreen ? 'fixed inset-0 z-50' : 'w-96'
+      className={`bg-white border-l border-gray-200 flex flex-col h-full ${
+        fullScreen ? 'fixed inset-0 z-50' : ''
       }`}
     >
-      <CardHeader className="border-b border-gray-200">
+      <CardHeader className="border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">AI Assistant</CardTitle>
-          {onToggleFullScreen && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleFullScreen}
-              className="text-xs"
-            >
-              {fullScreen ? 'Exit Full Screen' : 'Full Screen'}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {onToggleFullScreen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleFullScreen}
+                className="text-xs p-2"
+                title={fullScreen ? 'Exit Full Screen' : 'Full Screen'}
+              >
+                {fullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </Button>
+            )}
+            {onToggle && !fullScreen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggle}
+                className="text-xs p-2"
+                title="Close Panel"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
         
         {/* AI Mode Selector */}

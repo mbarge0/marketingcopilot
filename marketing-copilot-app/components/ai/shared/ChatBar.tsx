@@ -1,21 +1,86 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { AIModeKey, MODE_PLACEHOLDERS, MODE_SUGGESTIONS } from '@/lib/ai/aiModes';
+import { useState, FormEvent, useRef, useEffect } from 'react';
 import { useAIContext } from '@/lib/ai/context';
 import { Button } from '@/components/ui/button';
-import { Send } from 'lucide-react';
+import { Send, Mic, MicOff } from 'lucide-react';
 
-interface ChatBarProps {
-  mode: AIModeKey;
-}
-
-export default function ChatBar({ mode }: ChatBarProps) {
+export default function ChatBar() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { addQuestion } = useAIContext();
-  const suggestions = MODE_SUGGESTIONS[mode] || [];
-  const placeholder = MODE_PLACEHOLDERS[mode] || 'Ask anything...';
+  
+  const suggestions = [
+    'Why did my CPA increase?',
+    'Create a campaign for my product',
+    'Show me insights about my campaigns',
+    'Compare campaign A vs B',
+    'Optimize my budget allocation',
+    'Generate a performance report'
+  ];
+  const placeholder = 'Ask your AI Co-Pilot anything...';
+
+  useEffect(() => {
+    // Initialize Speech Recognition API
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join('');
+        setMessage(transcript);
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setIsListening(false);
+      }
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -44,7 +109,7 @@ export default function ChatBar({ mode }: ChatBarProps) {
     <div className="bg-white border-t border-gray-200 p-4 shadow-lg">
       {/* Suggestions */}
       {suggestions.length > 0 && (
-        <div className="mb-3">
+        <div className="mb-3 max-w-7xl mx-auto">
           <p className="text-xs text-gray-500 mb-2">Quick suggestions:</p>
           <div className="flex flex-wrap gap-2">
             {suggestions.map((suggestion, idx) => (
@@ -61,7 +126,7 @@ export default function ChatBar({ mode }: ChatBarProps) {
       )}
 
       {/* Chat Input */}
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex gap-2 max-w-7xl mx-auto">
         <div className="flex-1 relative">
           <input
             type="text"
@@ -76,6 +141,23 @@ export default function ChatBar({ mode }: ChatBarProps) {
               }
             }}
           />
+          <button
+            type="button"
+            onClick={toggleListening}
+            disabled={loading}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors ${
+              isListening
+                ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+            }`}
+            title={isListening ? 'Stop recording' : 'Start voice input'}
+          >
+            {isListening ? (
+              <MicOff className="w-4 h-4" />
+            ) : (
+              <Mic className="w-4 h-4" />
+            )}
+          </button>
         </div>
         <Button 
           type="submit" 
