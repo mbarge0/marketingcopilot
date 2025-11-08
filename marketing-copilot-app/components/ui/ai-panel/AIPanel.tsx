@@ -173,3 +173,4 @@ export default function AIPanel({ fullScreen = false, onToggleFullScreen }: AIPa
   );
 }
 
+
