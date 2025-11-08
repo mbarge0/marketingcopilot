@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createClient } from '@/lib/supabase/client';
+import { Download, CreditCard } from 'lucide-react';
 
 export default function SettingsContent() {
   const [connected, setConnected] = useState(false);
@@ -57,6 +58,9 @@ export default function SettingsContent() {
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
         <p className="text-gray-600 mt-2">Manage your account and integrations</p>
       </div>
+
+      {/* Subscription Section */}
+      <SubscriptionSection />
 
       {/* Account Integrations */}
       <Card>
@@ -173,6 +177,161 @@ export default function SettingsContent() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function SubscriptionSection() {
+  return (
+    <>
+      {/* Current Plan */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Current plan</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-semibold text-gray-900">Pro</h3>
+                <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                  Active
+                </span>
+              </div>
+              <div className="space-y-1 text-sm text-gray-600">
+                <p>$1000 / month</p>
+                <p>Renews on Dec 09, 2025</p>
+                <p>3 of 5 seats used</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline">Manage plan</Button>
+              <Button>Upgrade</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Usage */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Usage</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* AI Credits */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">AI credits used this month</span>
+              <span className="text-sm text-gray-600">1,240 / 2,000</span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-600 rounded-full"
+                style={{ width: '62%' }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Active Campaigns */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Active campaigns</span>
+              <span className="text-sm text-gray-600">12 / 25</span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-600 rounded-full"
+                style={{ width: '48%' }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Video Renders */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Video renders this month</span>
+              <span className="text-sm text-gray-600">28 / 50</span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-purple-600 rounded-full"
+                style={{ width: '56%' }}
+              ></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Billing Details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Company Info */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Company / Billing name
+              </label>
+              <p className="text-sm text-gray-900">Vista Inc.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Billing email</label>
+              <p className="text-sm text-gray-900">billing@vistastay.com</p>
+            </div>
+          </div>
+
+          {/* Payment Method */}
+          <div className="pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">Payment method</label>
+              <Button variant="link" className="text-sm h-auto p-0">
+                Update payment method
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-gray-400" />
+              <span className="text-sm text-gray-900">Visa **** 4242, expires 08/27</span>
+            </div>
+          </div>
+
+          {/* Invoices */}
+          <div className="pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-700">Invoices</h3>
+              <Button variant="link" className="text-sm h-auto p-0">
+                View all invoices
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {[
+                { month: 'October 2025', amount: '$1000.00' },
+                { month: 'September 2025', amount: '$1000.00' },
+                { month: 'August 2025', amount: '$1000.00' },
+              ].map((invoice, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-900">{invoice.month}</span>
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                      Paid
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-900">{invoice.amount}</span>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Download className="h-4 w-4 text-blue-600" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }
 

@@ -362,3 +362,4 @@ import { InsightReveal } from '@/lib/motion'
 
 **Full Documentation:** See `/core/docs/foundation/design_system.md` for complete specifications.
 
+

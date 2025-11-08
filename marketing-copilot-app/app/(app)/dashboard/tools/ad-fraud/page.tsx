@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import DashboardContent from '@/components/dashboard/DashboardContent';
+import AdFraudPage from '@/components/dashboard/tools/AdFraudPage';
 
-export default async function DashboardPage() {
+export default async function AdFraudRoute() {
   const supabase = await createClient();
   const {
     data: { session },
@@ -12,7 +12,6 @@ export default async function DashboardPage() {
     redirect('/auth/login');
   }
 
-  return <DashboardContent />;
+  return <AdFraudPage />;
 }
-
 

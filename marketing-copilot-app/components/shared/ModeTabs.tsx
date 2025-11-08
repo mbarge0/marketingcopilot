@@ -186,3 +186,4 @@ export default function ModeTabs({ currentMode, onModeChange, variant = 'dashboa
   )
 }
 
+

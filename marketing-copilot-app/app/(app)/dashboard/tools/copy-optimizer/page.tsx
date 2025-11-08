@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import DashboardContent from '@/components/dashboard/DashboardContent';
+import CopyOptimizerPage from '@/components/dashboard/tools/CopyOptimizerPage';
 
-export default async function DashboardPage() {
+export default async function CopyOptimizerRoute() {
   const supabase = await createClient();
   const {
     data: { session },
@@ -12,7 +12,6 @@ export default async function DashboardPage() {
     redirect('/auth/login');
   }
 
-  return <DashboardContent />;
+  return <CopyOptimizerPage />;
 }
-
 
