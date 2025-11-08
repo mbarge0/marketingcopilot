@@ -5,10 +5,8 @@ import {
   getCampaignReport,
   createCampaignEntity,
   refreshDataTool,
-  analyzePerformance,
-  setAgentContext
+  analyzePerformance
 } from "./tools";
-import type { AgentContext } from "./types";
 
 console.log("\n=== Agent Module Loading ===");
 console.log("LangSmith API Key:", process.env.LANGSMITH_API_KEY ? "SET" : "NOT SET");
@@ -70,12 +68,7 @@ console.log("Agent created successfully");
 console.log("===========================\n");
 
 // Agent invocation helper
-export async function invokeAgent(
-  messages: BaseMessage[] | any[],
-  context: AgentContext
-): Promise<string> {
-  // Set context before invoking agent
-  setAgentContext(context);
+export async function invokeAgent(messages: BaseMessage[] | any[]): Promise<string> {
   console.log("\n--- Agent Invocation Start ---");
   console.log("Input messages count:", messages.length);
   

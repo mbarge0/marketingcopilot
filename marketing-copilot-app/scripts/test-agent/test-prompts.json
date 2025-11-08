@@ -1,0 +1,51 @@
+{
+  "get_campaign_report": [
+    "Show me the campaign performance report with spend, impressions, clicks, conversions, ROAS, CPA, and CPC for Google Ads and Meta Ads for the last 7 days.",
+    "/report last week",
+    "What's my spend and ROAS looking like this month?",
+    "Give me a quick overview of yesterday's performance across both channels",
+    "How did we do on Google last 30 days? Show me everything",
+    "What's the current spend and conversion data?",
+    "/report spend, conv, ROAS last 7d",
+    "show me last week's perf - spend, roas, cpa",
+    "Can you pull our campaign metrics for the past week including impressions and clicks?",
+    "What's the performance since Monday?"
+  ],
+  "create_campaign_entity": [
+    "/create campaign \"Summer Sale\" budget $5000 on Google",
+    "create campaign test $1000 google",
+    "I need to create a new campaign for Meta. Call it \"Q1 Push\" and set the budget to $3000",
+    "Create a campaign named \"Black Friday 2024\" on Google with a $10,000 budget",
+    "Create an adset called \"Mobile Traffic\" in campaign CAMPAIGN_123 on Meta with $2000 budget",
+    "Create an ad named \"Product Showcase\" in campaign CAMPAIGN_123, adset ADSET_456 on Google",
+    "Set a budget of $5000 for the \"Summer Sale\" campaign on Meta",
+    "make new campaign \"test\" $500 google",
+    "Can you create a campaign called \"Spring Promo\" on Google with a budget of $4000?",
+    "Create a campaign called \"Test Campaign\" on Meta"
+  ],
+  "refresh_data": [
+    "/refresh data for last 30 days across all channels",
+    "refresh",
+    "Can you sync my campaign data? I want the latest numbers",
+    "Refresh data for the last 7 days",
+    "Update the cache for Google Ads only",
+    "Refresh just the campaign data for last month",
+    "sync data last week",
+    "Can you refresh the data for the last 30 days?",
+    "Sync my data",
+    "Update everything"
+  ],
+  "analyze_performance": [
+    "/analyze why did ROAS drop yesterday? Analyze performance across Google Ads and Meta Ads for the last 7 days focusing on ROAS metric.",
+    "analyze perf",
+    "Something seems off - why did our ROAS drop yesterday?",
+    "What's causing the CPA increase on Meta?",
+    "Check for any unusual patterns in performance over the last 14 days",
+    "Analyze Google performance - why is spend up but conversions down?",
+    "Analyze ROAS performance for last month and explain any changes",
+    "why cpa up last week?",
+    "Can you analyze why performance changed yesterday?",
+    "Something doesn't look right - what's going on?"
+  ]
+}
+

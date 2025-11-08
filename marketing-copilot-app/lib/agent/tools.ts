@@ -1,101 +1,10 @@
 import { tool } from "@langchain/core/tools";
-import { AgentContext } from "./types";
-import { createServiceClient } from "@/lib/supabase/service";
-import { getGoogleAdsClientForAccount } from "@/lib/google-ads/client";
-import { fetchCampaigns } from "@/lib/google-ads/api";
-import { 
-  detectBudgetOverspend, 
-  detectPerformanceAnomalies, 
-  generateAIRecommendations 
-} from "@/lib/insights/budget-detection";
-import { fetchHistoricalMetrics } from "@/lib/google-ads/api";
-
-// Global context store (set before agent invocation)
-let agentContext: AgentContext | null = null;
-
-/**
- * Set agent context for tool execution
- * Called by API route before invoking agent
- */
-export function setAgentContext(context: AgentContext) {
-  agentContext = context;
-}
-
-/**
- * Get agent context
- * Used by tools to access user context
- */
-function getContext(): AgentContext {
-  if (!agentContext) {
-    throw new Error("Agent context not set. Call setAgentContext() before invoking agent.");
-  }
-  return agentContext;
-}
-
-/**
- * Helper to get user's Google Ads account
- */
-async function getUserAccount() {
-  const context = getContext();
-  const supabase = createServiceClient();
-  
-  const { data: accounts, error } = await supabase
-    .from('google_ads_accounts')
-    .select('id, customer_id, account_name, status')
-    .eq('user_id', context.userId)
-    .eq('status', 'active')
-    .limit(1);
-
-  if (error || !accounts || accounts.length === 0) {
-    throw new Error('No Google Ads account connected');
-  }
-
-  return accounts[0];
-}
-
-/**
- * Helper to convert date range string to date range object
- */
-function parseDateRange(dateRange?: string): { startDate: string; endDate: string } {
-  const endDate = new Date();
-  const startDate = new Date();
-
-  switch (dateRange) {
-    case 'today':
-      startDate.setHours(0, 0, 0, 0);
-      break;
-    case 'yesterday':
-      startDate.setDate(startDate.getDate() - 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setDate(endDate.getDate() - 1);
-      endDate.setHours(23, 59, 59, 999);
-      break;
-    case 'last_7_days':
-      startDate.setDate(startDate.getDate() - 7);
-      break;
-    case 'last_30_days':
-      startDate.setDate(startDate.getDate() - 30);
-      break;
-    case 'this_month':
-      startDate.setDate(1);
-      startDate.setHours(0, 0, 0, 0);
-      break;
-    case 'last_month':
-      startDate.setMonth(startDate.getMonth() - 1);
-      startDate.setDate(1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setDate(0); // Last day of previous month
-      endDate.setHours(23, 59, 59, 999);
-      break;
-    default:
-      startDate.setDate(startDate.getDate() - 30);
-  }
-
-  return {
-    startDate: startDate.toISOString().split('T')[0],
-    endDate: endDate.toISOString().split('T')[0],
-  };
-}
+import {
+  campaignReportData,
+  createEntityData,
+  refreshData,
+  analyzeData
+} from "./mock-data";
 
 console.log("\n=== Tools Module Loading ===");
 
@@ -109,98 +18,16 @@ export const getCampaignReport = tool(
     console.log("Date Range:", dateRange);
     
     try {
-      const context = getContext();
-      const supabase = createServiceClient();
-      
-      // For now, only support Google Ads (Meta not implemented yet)
-      const channelList = channels || ["google"];
+      // Return data for requested channels
       const result: Record<string, any> = {};
-
-      for (const channel of channelList) {
-        if (channel === "google") {
-          // Get user's Google Ads account
-          const account = await getUserAccount();
-          
-          // Check cache first
-          const dateRangeObj = parseDateRange(dateRange);
-          const { data: cachedCampaigns } = await supabase
-            .from('campaigns_cache')
-            .select('*')
-            .eq('account_id', account.id)
-            .gte('cached_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
-            .order('name');
-
-          if (cachedCampaigns && cachedCampaigns.length > 0) {
-            // Aggregate metrics from cached campaigns
-            const aggregated = cachedCampaigns.reduce((acc, campaign) => {
-              acc.spend += (campaign.cost_micros || 0) / 1000000;
-              acc.impressions += campaign.impressions || 0;
-              acc.clicks += campaign.clicks || 0;
-              acc.conversions += campaign.conversions || 0;
-              return acc;
-            }, { spend: 0, impressions: 0, clicks: 0, conversions: 0 });
-
-            // Calculate derived metrics
-            const ctr = aggregated.impressions > 0 ? (aggregated.clicks / aggregated.impressions) : 0;
-            const cpc = aggregated.clicks > 0 ? (aggregated.spend / aggregated.clicks) : 0;
-            const cpa = aggregated.conversions > 0 ? (aggregated.spend / aggregated.conversions) : 0;
-            
-            // Calculate ROAS (simplified - would need conversion value from API)
-            const roas = aggregated.conversions > 0 ? (aggregated.spend * 3 / aggregated.conversions) : 0; // Placeholder
-
-            result.google = {
-              spend: aggregated.spend,
-              impressions: aggregated.impressions,
-              clicks: aggregated.clicks,
-              conversions: aggregated.conversions,
-              roas: roas,
-              cpa: cpa,
-              cpc: cpc,
-              ctr: ctr
-            };
-          } else {
-            // Fetch from API
-            const { customer } = await getGoogleAdsClientForAccount(account.id);
-            const campaigns = await fetchCampaigns(customer, parseDateRange(dateRange));
-            
-            // Aggregate metrics
-            const aggregated = campaigns.reduce((acc, campaign) => {
-              acc.spend += (campaign.metrics.cost_micros || 0) / 1000000;
-              acc.impressions += campaign.metrics.impressions || 0;
-              acc.clicks += campaign.metrics.clicks || 0;
-              acc.conversions += campaign.metrics.conversions || 0;
-              return acc;
-            }, { spend: 0, impressions: 0, clicks: 0, conversions: 0 });
-
-            const ctr = aggregated.impressions > 0 ? (aggregated.clicks / aggregated.impressions) : 0;
-            const cpc = aggregated.clicks > 0 ? (aggregated.spend / aggregated.clicks) : 0;
-            const cpa = aggregated.conversions > 0 ? (aggregated.spend / aggregated.conversions) : 0;
-            const roas = aggregated.conversions > 0 ? (aggregated.spend * 3 / aggregated.conversions) : 0; // Placeholder
-
-            result.google = {
-              spend: aggregated.spend,
-              impressions: aggregated.impressions,
-              clicks: aggregated.clicks,
-              conversions: aggregated.conversions,
-              roas: roas,
-              cpa: cpa,
-              cpc: cpc,
-              ctr: ctr
-            };
+      const channelList = channels || ["google", "meta"];
+      channelList.forEach(channel => {
+        if (channel === "google" || channel === "meta") {
+          if (campaignReportData[channel]) {
+            result[channel] = campaignReportData[channel];
           }
-        } else if (channel === "meta") {
-          // Meta Ads not implemented yet - return placeholder
-          result.meta = {
-            spend: 0,
-            impressions: 0,
-            clicks: 0,
-            conversions: 0,
-            roas: 0,
-            cpa: 0,
-            cpc: 0
-          };
         }
-      }
+      });
       
       const response = JSON.stringify(result);
       console.log("Tool result:", result);
@@ -258,47 +85,38 @@ export const createCampaignEntity = tool(
     console.log("Name:", name);
     console.log("Channel:", channel);
     console.log("Budget:", budget);
+    console.log("Campaign ID:", campaignId);
+    console.log("Adset ID:", adsetId);
     
     try {
-      const context = getContext();
+      // Get base entity data
+      const baseData = (createEntityData as any)[entity] || createEntityData.campaign;
       
-      if (channel === "google" && entity === "campaign") {
-        // Get user's Google Ads account
-        const account = await getUserAccount();
-        
-        // For now, return a placeholder - full implementation would call createPerformanceMaxCampaign
-        // This preserves existing functionality while adding agent capability
-        const result = {
-          success: true,
-          entity: entity,
-          entityId: `campaign_${Date.now()}`,
-          name: name,
-          channel: channel,
-          budget: budget || null,
-          status: "created",
-          message: `Campaign '${name}' created successfully${budget ? ` with budget $${budget}` : ""}. Note: Full campaign creation requires additional parameters (landing page, headlines, descriptions).`
-        };
-        
-        const response = JSON.stringify(result);
-        console.log("Tool result:", result);
-        console.log("--- Tool Execution End ---\n");
-        
-        return response;
-      } else {
-        // Other entities or channels not fully implemented
-        const result = {
-          success: true,
-          entity: entity,
-          entityId: `${entity}_${Date.now()}`,
-          name: name,
-          channel: channel,
-          budget: budget || null,
-          status: "created",
-          message: `${entity.charAt(0).toUpperCase() + entity.slice(1)} '${name}' created successfully${budget ? ` with budget $${budget}` : ""}`
-        };
-        
-        return JSON.stringify(result);
+      // Build response with provided parameters
+      const result: any = {
+        success: true,
+        entity: entity,
+        entityId: baseData.entityId,
+        name: name || "Unnamed Entity",
+        channel: channel,
+        budget: budget || null,
+        status: "created",
+        message: `${entity.charAt(0).toUpperCase() + entity.slice(1)} '${name || "Unnamed Entity"}' created successfully${budget ? ` with budget $${budget}` : ""}`
+      };
+      
+      // Add parent IDs if provided
+      if (campaignId) {
+        result.campaignId = campaignId;
       }
+      if (adsetId) {
+        result.adsetId = adsetId;
+      }
+      
+      const response = JSON.stringify(result);
+      console.log("Tool result:", result);
+      console.log("--- Tool Execution End ---\n");
+      
+      return response;
     } catch (error) {
       console.error("\n--- ERROR in createCampaignEntity ---");
       console.error("Error message:", error instanceof Error ? error.message : String(error));
@@ -355,81 +173,33 @@ export const refreshDataTool = tool(
     console.log("Channels:", channels);
     
     try {
-      const context = getContext();
-      const supabase = createServiceClient();
       const scopeValue = scope || "all";
       const dateRangeValue = dateRange || "last_30_days";
-      const channelList = channels || ["google"];
+      const channelList = channels || ["google", "meta"];
       
+      // Build response based on refresh data
       const result: any = {
         success: true,
         scope: scopeValue,
         dateRange: dateRangeValue,
         channels: channelList,
-        updated: { campaigns: 0, adsets: 0, ads: 0 },
+        updated: refreshData.updated,
         metrics: {}
       };
-
-      for (const channel of channelList) {
-        if (channel === "google") {
-          try {
-            const account = await getUserAccount();
-            const { customer } = await getGoogleAdsClientForAccount(account.id);
-            const campaigns = await fetchCampaigns(customer, parseDateRange(dateRangeValue));
-            
-            // Update cache
-            let updatedCount = 0;
-            for (const campaign of campaigns) {
-              const { error: upsertError } = await supabase
-                .from('campaigns_cache')
-                .upsert(
-                  {
-                    account_id: account.id,
-                    campaign_id: campaign.campaign_id,
-                    name: campaign.name,
-                    status: campaign.status,
-                    campaign_type: campaign.campaign_type,
-                    daily_budget_micros: campaign.daily_budget_micros,
-                    total_budget_micros: campaign.total_budget_micros,
-                    impressions: campaign.metrics.impressions,
-                    clicks: campaign.metrics.clicks,
-                    cost_micros: campaign.metrics.cost_micros,
-                    conversions: campaign.metrics.conversions,
-                    ctr: campaign.metrics.ctr,
-                    cpc_micros: campaign.metrics.cpc_micros,
-                    cpa_micros: campaign.metrics.cpa_micros,
-                    roas: campaign.metrics.roas,
-                    cached_at: new Date().toISOString(),
-                    metrics_date: new Date().toISOString(),
-                  },
-                  {
-                    onConflict: 'account_id,campaign_id',
-                  }
-                );
-
-              if (!upsertError) {
-                updatedCount++;
-              }
-            }
-            
-            result.updated.campaigns = updatedCount;
-            
-            // Calculate metrics
-            const totalSpend = campaigns.reduce((sum, c) => sum + (c.metrics.cost_micros || 0) / 1000000, 0);
-            const totalConversions = campaigns.reduce((sum, c) => sum + (c.metrics.conversions || 0), 0);
-            
-            result.metrics.google = {
-              spend: totalSpend,
-              conversions: totalConversions
-            };
-          } catch (error: any) {
-            console.error("Error refreshing Google Ads data:", error);
-            result.metrics.google = { error: error.message };
-          }
-        }
-      }
       
-      result.message = `Data refreshed for ${dateRangeValue}. ${result.updated.campaigns} campaigns updated.`;
+      // Add metrics for requested channels
+      channelList.forEach(channel => {
+        if (refreshData.metrics[channel as keyof typeof refreshData.metrics]) {
+          result.metrics[channel] = refreshData.metrics[channel as keyof typeof refreshData.metrics];
+        }
+      });
+      
+      // Calculate new entities count
+      const newEntitiesCount = refreshData.newEntities.campaigns + 
+                               refreshData.newEntities.adsets + 
+                               refreshData.newEntities.ads;
+      
+      result.message = `Data refreshed for ${dateRangeValue}. ${refreshData.newEntities.campaigns} new campaigns detected.`;
       
       const response = JSON.stringify(result);
       console.log("Tool result:", result);
@@ -487,138 +257,22 @@ export const analyzePerformance = tool(
     console.log("Metric:", metric);
     
     try {
-      const context = getContext();
-      const supabase = createServiceClient();
       const dateRangeValue = dateRange || "last_7_days";
-      const channelList = channels || ["google"];
+      const channelList = channels || ["google", "meta"];
       const metricValue = metric || "all";
       
-      const findings: any[] = [];
-      let rootCause = "";
-      const recommendations: string[] = [];
-      
-      for (const channel of channelList) {
-        if (channel === "google") {
-          try {
-            const account = await getUserAccount();
-            
-            // Get cached campaigns
-            const { data: campaigns } = await supabase
-              .from('campaigns_cache')
-              .select('*')
-              .eq('account_id', account.id)
-              .order('name');
-            
-            if (campaigns && campaigns.length > 0) {
-              // Analyze each campaign
-              for (const campaign of campaigns) {
-                // Budget overspend detection
-                if (campaign.daily_budget_micros && campaign.cost_micros) {
-                  const budgetInsight = await detectBudgetOverspend(
-                    account.id,
-                    campaign.campaign_id,
-                    campaign.cost_micros,
-                    campaign.daily_budget_micros
-                  );
-                  
-                  if (budgetInsight) {
-                    findings.push({
-                      metric: "budget",
-                      channel: "google",
-                      change: budgetInsight.message,
-                      impact: budgetInsight.priority,
-                      explanation: budgetInsight.title
-                    });
-                  }
-                }
-                
-                // Performance anomaly detection
-                if (campaign.cpa_micros || campaign.ctr || campaign.roas) {
-                  try {
-                    const { customer } = await getGoogleAdsClientForAccount(account.id);
-                    const historical = await fetchHistoricalMetrics(customer, campaign.campaign_id, 7);
-                    
-                    if (historical.length > 0) {
-                      const anomalyInsights = await detectPerformanceAnomalies(
-                        account.id,
-                        campaign.campaign_id,
-                        {
-                          cpa_micros: campaign.cpa_micros,
-                          ctr: campaign.ctr,
-                          roas: campaign.roas,
-                        },
-                        historical
-                      );
-                      
-                      anomalyInsights.forEach(insight => {
-                        findings.push({
-                          metric: insight.type,
-                          channel: "google",
-                          change: insight.message,
-                          impact: insight.priority,
-                          explanation: insight.title
-                        });
-                      });
-                    }
-                  } catch (error) {
-                    console.error("Error detecting anomalies:", error);
-                  }
-                }
-                
-                // AI recommendations for top campaigns
-                if (campaign.impressions > 1000) {
-                  try {
-                    const aiInsights = await generateAIRecommendations({
-                      account_id: account.id,
-                      campaign_id: campaign.campaign_id,
-                      ...campaign
-                    });
-                    
-                    aiInsights.forEach(insight => {
-                      recommendations.push(insight.message);
-                    });
-                  } catch (error) {
-                    console.error("Error generating AI recommendations:", error);
-                  }
-                }
-              }
-            }
-          } catch (error: any) {
-            console.error("Error analyzing Google Ads:", error);
-            findings.push({
-              metric: "error",
-              channel: "google",
-              change: "N/A",
-              impact: "error",
-              explanation: error.message
-            });
-          }
-        }
-      }
-      
-      // Generate root cause summary
-      if (findings.length > 0) {
-        const criticalFindings = findings.filter(f => f.impact === "critical");
-        if (criticalFindings.length > 0) {
-          rootCause = criticalFindings.map(f => f.explanation).join(". ");
-        } else {
-          rootCause = findings.map(f => f.explanation).join(". ");
-        }
-      } else {
-        rootCause = "No significant performance issues detected.";
-      }
-      
+      // Build analysis response
       const result = {
         analysis: {
           query: query || "analyze performance",
           dateRange: dateRangeValue,
           channels: channelList,
           metric: metricValue,
-          findings: findings,
-          rootCause: rootCause,
-          recommendations: recommendations.length > 0 ? recommendations : ["Continue monitoring performance", "Review campaign settings"]
+          findings: analyzeData.findings,
+          rootCause: analyzeData.rootCause,
+          recommendations: analyzeData.recommendations
         },
-        summary: rootCause
+        summary: analyzeData.rootCause
       };
       
       const response = JSON.stringify(result);
