@@ -45,6 +45,7 @@ export default function ChatBar({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [agentPhase, setAgentPhase] = useState<AgentPhase>('idle')
   const [agentActivity, setAgentActivity] = useState<AgentActivity>('planning')
+  const [conversationHistory, setConversationHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([])
   
   // Determine context if not provided
   const chatContext = context || getChatContext(pathname, mode)
@@ -82,19 +83,49 @@ export default function ChatBar({
     setMessage('')
     setIsSubmitting(true)
 
+    // Add user message to conversation history
+    const updatedHistory = [...conversationHistory, { role: 'user' as const, content: userMessage }]
+    setConversationHistory(updatedHistory)
+
     try {
       if (onSend) {
+        // Custom handler provided
         await onSend(userMessage)
       } else {
-        // Default behavior: TODO - connect to OpenAI API
-        console.log('User asked:', userMessage)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        // Default behavior: Call agent API
+        setAgentActivity('analyzing')
+        
+        const response = await fetch('/api/agent/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            conversationHistory: updatedHistory.slice(0, -1), // Exclude current message
+          }),
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.message || 'Failed to get response from agent')
+        }
+
+        const data = await response.json()
+        const assistantMessage = data.response || 'I apologize, but I could not generate a response.'
+
+        // Add assistant response to conversation history
+        setConversationHistory([...updatedHistory, { role: 'assistant' as const, content: assistantMessage }])
+        
+        // TODO: Display response in UI (could be a toast, modal, or inline display)
+        console.log('Agent response:', assistantMessage)
       }
     } catch (error) {
       console.error('Chat error:', error)
       // Restore message on error
       setMessage(userMessage)
+      // Remove failed message from history
+      setConversationHistory(conversationHistory)
     } finally {
       setIsSubmitting(false)
     }

@@ -1,44 +1,45 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import AIPanel from '@/components/ui/ai-panel/AIPanel';
-import DashboardChatBar from '@/components/shared/DashboardChatBar';
+import { useState, useEffect } from 'react';
+import RightAIChatPanel from '@/components/ai/RightAIChatPanel';
 
 export default function AILayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAIMode = pathname?.startsWith('/ai');
   const isDashboardMode = pathname?.startsWith('/dashboard') || pathname === '/dashboard';
-  const [fullScreen, setFullScreen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
 
-  if (fullScreen) {
-    return (
-      <div className="fixed inset-0 z-50 bg-white">
-        <AIPanel fullScreen={true} onToggleFullScreen={() => setFullScreen(false)} />
-      </div>
-    );
-  }
+  // Listen for sidebar minimize state changes (via custom event)
+  useEffect(() => {
+    const handleSidebarResize = (e: CustomEvent) => {
+      setIsChatMinimized(e.detail.isMinimized);
+    };
 
-  if (isAIMode) {
-    // Remove right panel - use full width for AI workspace
-    return (
-      <main className="flex-1 overflow-hidden">
-        {children}
-      </main>
-    );
-  }
+    window.addEventListener('sidebar-resize' as any, handleSidebarResize);
+    return () => window.removeEventListener('sidebar-resize' as any, handleSidebarResize);
+  }, []);
 
-  // Dashboard mode - add chat bar at bottom
-  if (isDashboardMode) {
+  // Both AI mode and Dashboard mode now use the right sidebar
+  if (isAIMode || isDashboardMode) {
     return (
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <main className="flex-1 overflow-y-auto pb-32">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Main Content Area - adjust margin for right sidebar */}
+        <main 
+          className={`
+            flex-1 overflow-y-auto transition-all duration-300 ease-in-out
+            ${isChatOpen && !isChatMinimized ? 'lg:mr-96 md:mr-80 sm:mr-0' : 'mr-16'}
+          `}
+        >
           {children}
         </main>
-        {/* Fixed chat bar at bottom */}
-        <div className="fixed bottom-0 left-[320px] right-0 z-20">
-          <DashboardChatBar />
-        </div>
+        
+        {/* Right AI Chat Panel */}
+        <RightAIChatPanel
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
       </div>
     );
   }
