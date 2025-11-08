@@ -503,17 +503,11 @@ export default function RightAIChatPanel({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsMinimized(false)}
-                className="flex flex-col items-center gap-2 h-auto py-3 px-2 hover:bg-blue-50 rounded-lg"
+                className="flex flex-col items-center gap-1.5 h-auto py-3 px-2 hover:bg-blue-50 rounded-lg"
                 title="Expand AI Co-Pilot"
               >
                 <Sparkles className="w-6 h-6 text-blue-600" />
-                <div className="flex flex-col gap-0.5">
-                  {['A', 'I'].map((letter, idx) => (
-                    <span key={idx} className="text-xs font-semibold text-gray-600">
-                      {letter}
-                    </span>
-                  ))}
-                </div>
+                <span className="text-xs font-semibold text-gray-600">AI</span>
               </Button>
               
               {/* Message count indicator */}
