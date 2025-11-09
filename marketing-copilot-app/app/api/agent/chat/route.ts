@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase/service';
-import { invokeAgent, type AgentContext } from '@/lib/agent';
+import { invokeAgent } from '@/lib/agent';
 import { HumanMessage } from '@langchain/core/messages';
 
 /**
@@ -31,25 +30,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's Google Ads account for context
-    const serviceSupabase = createServiceClient();
-    const { data: accounts } = await serviceSupabase
-      .from('google_ads_accounts')
-      .select('id, customer_id')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .limit(1);
-
-    const accountId = accounts && accounts.length > 0 ? accounts[0].id : undefined;
-    const customerId = accounts && accounts.length > 0 ? accounts[0].customer_id : undefined;
-
-    // Create agent context
-    const context: AgentContext = {
-      userId: user.id,
-      accountId: accountId,
-      customerId: customerId,
-    };
-
     // Convert conversation history to LangChain messages
     const messages: any[] = [];
     
@@ -65,8 +45,8 @@ export async function POST(request: NextRequest) {
     // Add current message
     messages.push(new HumanMessage(message));
 
-    // Invoke agent
-    const response = await invokeAgent(messages, context);
+    // Invoke agent (context will be added to tools when needed)
+    const response = await invokeAgent(messages);
 
     return NextResponse.json({
       response,

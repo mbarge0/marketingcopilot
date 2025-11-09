@@ -20,8 +20,9 @@ export default function AILayoutWrapper({ children }: { children: React.ReactNod
     return () => window.removeEventListener('sidebar-resize' as any, handleSidebarResize);
   }, []);
 
-  // Both AI mode and Dashboard mode now use the right sidebar
-  if (isAIMode || isDashboardMode) {
+  // Dashboard mode uses the right sidebar
+  // AI mode has its own layout in /ai/page.tsx, so we don't wrap it here
+  if (isDashboardMode) {
     return (
       <div className="flex flex-1 overflow-hidden">
         {/* Main Content Area - adjust margin for right sidebar (always present) */}
@@ -38,6 +39,11 @@ export default function AILayoutWrapper({ children }: { children: React.ReactNod
         <RightAIChatPanel />
       </div>
     );
+  }
+
+  // AI mode - let the AI page handle its own layout
+  if (isAIMode) {
+    return <>{children}</>;
   }
 
   return <main className="flex-1 overflow-y-auto">{children}</main>;

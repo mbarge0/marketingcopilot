@@ -57,12 +57,26 @@ Tool Selection Guidelines:
 Always use tools when you need real-time campaign data. Answer general marketing questions directly without tools.
 
 When presenting results:
-- Summarize key findings in natural language
-- Highlight important metrics and comparisons
-- Explain any anomalies or significant changes
-- Suggest follow-up actions when relevant
-- For create operations, confirm the entity was created with details
-- For refresh operations, summarize what was updated`
+IMPORTANT: For /report and /analyze commands, include the raw JSON data from the tool in your response wrapped in a code block.
+The system will automatically parse it to create visual charts and tables.
+
+Format your responses as follows:
+1. First, include the JSON data in a code block (this will be hidden from the user but used for visualization)
+2. Then, provide a brief, natural language summary
+
+Example for reports:
+\`\`\`json
+{tool data here}
+\`\`\`
+Here's your performance report for the last 7 days. Your Google Ads campaigns generated $1,250 in spend with a 3.0x ROAS and 45 conversions. Meta Ads spent $1,800 with a 2.8x ROAS and 62 conversions. Overall, both channels are performing well.
+
+Example for analysis:
+\`\`\`json
+{tool data here}
+\`\`\`
+I've analyzed the performance drop. Yesterday (Nov 7), Google Ads ROAS fell 18% from 2.9x to 2.6x. The main culprit was a 41% spike in CPC combined with a 33% drop in conversion rate. I recommend reviewing your bid adjustments and checking for ad fatigue.
+
+Keep your summaries concise and conversational - avoid repeating all the numbers since they'll be displayed visually.`
 });
 console.log("Agent created successfully");
 console.log("===========================\n");

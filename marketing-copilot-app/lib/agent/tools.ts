@@ -261,18 +261,15 @@ export const analyzePerformance = tool(
       const channelList = channels || ["google", "meta"];
       const metricValue = metric || "all";
       
-      // Build analysis response
+      // Build analysis response - include full analyze data with anomaly detection
       const result = {
+        ...analyzeData,
         analysis: {
           query: query || "analyze performance",
           dateRange: dateRangeValue,
           channels: channelList,
           metric: metricValue,
-          findings: analyzeData.findings,
-          rootCause: analyzeData.rootCause,
-          recommendations: analyzeData.recommendations
-        },
-        summary: analyzeData.rootCause
+        }
       };
       
       const response = JSON.stringify(result);

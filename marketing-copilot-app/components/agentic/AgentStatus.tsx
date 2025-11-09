@@ -68,7 +68,7 @@ export default function AgentStatus({
 
     const interval = setInterval(() => {
       setCurrentDescription((prev) => (prev + 1) % descriptions.length)
-    }, 3000) // Change every 3 seconds
+    }, 2000) // Change every 2 seconds (faster rotation)
 
     return () => clearInterval(interval)
   }, [rotateDescriptions, customDescription, descriptions.length])

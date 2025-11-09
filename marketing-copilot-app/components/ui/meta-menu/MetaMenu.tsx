@@ -2,18 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Brain, Settings } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 type MetaMenuItem = {
   id: 'dashboard' | 'ai' | 'settings';
-  icon: string;
+  icon: LucideIcon;
   href: string;
   tooltip: string;
 };
 
 const metaMenuItems: MetaMenuItem[] = [
-  { id: 'dashboard', icon: '🏠', href: '/dashboard', tooltip: 'Dashboard' },
-  { id: 'ai', icon: '🧠', href: '/ai', tooltip: 'AI' },
-  { id: 'settings', icon: '⚙️', href: '/settings', tooltip: 'Settings' },
+  { id: 'dashboard', icon: LayoutDashboard, href: '/dashboard', tooltip: 'Dashboard' },
+  { id: 'ai', icon: Brain, href: '/ai', tooltip: 'AI Workspace' },
+  { id: 'settings', icon: Settings, href: '/settings', tooltip: 'Settings' },
 ];
 
 export default function MetaMenu() {
@@ -32,6 +34,7 @@ export default function MetaMenu() {
       <nav className="flex-1 py-4">
           {metaMenuItems.map((item) => {
             const isActive = activeId === item.id;
+            const Icon = item.icon;
             return (
               <Link
                 key={item.id}
@@ -43,7 +46,7 @@ export default function MetaMenu() {
                 }`}
                 title={item.tooltip}
               >
-                <span className="text-xl">{item.icon}</span>
+                <Icon className="w-5 h-5" />
                 {isActive && (
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r" />
                 )}

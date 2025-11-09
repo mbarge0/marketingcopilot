@@ -2,16 +2,20 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AIModeKey } from '@/lib/ai/aiModes';
+import { ContentCardData } from '@/components/ai/workspace/ContentCard';
 
 interface AIContextType {
   currentMode: AIModeKey;
   viewedCampaigns: string[];
   askedQuestions: string[];
   takenActions: string[];
+  contentCards: ContentCardData[];
   setCurrentMode: (mode: AIModeKey) => void;
   addViewedCampaign: (campaignId: string) => void;
   addQuestion: (question: string) => void;
   addAction: (action: string) => void;
+  addContentCards: (cards: ContentCardData[]) => void;
+  updateContentCard: (id: string, data: any) => void;
   clearContext: () => void;
 }
 
@@ -22,6 +26,7 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
   const [viewedCampaigns, setViewedCampaigns] = useState<string[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
   const [takenActions, setTakenActions] = useState<string[]>([]);
+  const [contentCards, setContentCards] = useState<ContentCardData[]>([]);
 
   // Load context from localStorage on mount
   useEffect(() => {
@@ -32,6 +37,7 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
         if (parsed.viewedCampaigns) setViewedCampaigns(parsed.viewedCampaigns);
         if (parsed.askedQuestions) setAskedQuestions(parsed.askedQuestions);
         if (parsed.takenActions) setTakenActions(parsed.takenActions);
+        // Note: contentCards are not persisted to avoid stale data
       } catch (e) {
         console.error('Failed to load AI context:', e);
       }
@@ -67,10 +73,21 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
     setTakenActions((prev) => [...prev, action]);
   };
 
+  const addContentCards = (cards: ContentCardData[]) => {
+    setContentCards((prev) => [...prev, ...cards]);
+  };
+
+  const updateContentCard = (id: string, data: any) => {
+    setContentCards((prev) =>
+      prev.map((card) => (card.id === id ? { ...card, data: { ...card.data, ...data } } : card))
+    );
+  };
+
   const clearContext = () => {
     setViewedCampaigns([]);
     setAskedQuestions([]);
     setTakenActions([]);
+    setContentCards([]);
     localStorage.removeItem('ai-context');
   };
 
@@ -81,10 +98,13 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
         viewedCampaigns,
         askedQuestions,
         takenActions,
+        contentCards,
         setCurrentMode,
         addViewedCampaign,
         addQuestion,
         addAction,
+        addContentCards,
+        updateContentCard,
         clearContext,
       }}
     >

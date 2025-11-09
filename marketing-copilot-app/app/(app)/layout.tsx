@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import MetaMenu from '@/components/ui/meta-menu/MetaMenu';
-import LeftNavigation from '@/components/dashboard/LeftNavigation';
+import ConditionalNavigation from '@/components/shared/ConditionalNavigation';
 import AILayoutWrapper from '@/components/ai/AILayoutWrapper';
 
 export default async function AuthenticatedLayout({
@@ -22,7 +22,7 @@ export default async function AuthenticatedLayout({
     <div className="flex min-h-screen bg-gray-50">
       <MetaMenu />
       <div className="ml-16 flex flex-1">
-        <LeftNavigation />
+        <ConditionalNavigation />
         <AILayoutWrapper>
           {children}
         </AILayoutWrapper>

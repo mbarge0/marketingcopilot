@@ -10,11 +10,13 @@
 import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Send, X, Minimize2, Maximize2, Sparkles, Plus, Clock } from 'lucide-react';
+import { Send, X, Minimize2, Maximize2, Sparkles, Plus, Clock, Mic, MicOff } from 'lucide-react';
 import { getChatContext, getChatSuggestions } from '@/lib/ai/chatSuggestions';
 import { AgentThinking } from '@/components/agentic';
 import { AgentPhase, AgentActivity } from '@/lib/motion/agentic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMicrophone } from '@/lib/hooks/useMicrophone';
+import { AgentResponseRenderer } from '@/components/ai/shared/AgentResponseRenderer';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -52,6 +54,22 @@ export default function RightAIChatPanel({
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
+
+  // Microphone functionality
+  const handleTranscript = (text: string) => {
+    setMessage(text);
+  };
+
+  const { isListening, isSupported, startListening, stopListening, error: micError } = useMicrophone(handleTranscript);
+
+  const toggleListening = async () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      await startListening();
+    }
+  };
 
   // Multi-tab state
   const [tabs, setTabs] = useState<ChatTab[]>([
@@ -85,21 +103,41 @@ export default function RightAIChatPanel({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to show the latest assistant message at the top
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Only scroll when a new message is added
+    if (messages.length === 0) return;
+    
+    const lastMessage = messages[messages.length - 1];
+    
+    // If the last message is from the assistant, scroll to show it at the top
+    if (lastMessage.role === 'assistant' && lastAssistantMessageRef.current) {
+      // Small delay to ensure content is rendered
+      setTimeout(() => {
+        lastAssistantMessageRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' // Align to the top of the scrollable area
+        });
+      }, 100);
+    } else {
+      // For user messages, scroll to bottom as before
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   // Update agent phase based on loading state
   useEffect(() => {
     if (loading && agentPhase === 'idle') {
       setAgentPhase('initiation');
-      setTimeout(() => setAgentPhase('cognition'), 200);
-      setTimeout(() => setAgentActivity('analyzing'), 500);
+      setTimeout(() => setAgentPhase('cognition'), 150);
+      setTimeout(() => setAgentActivity('analyzing'), 300);
+      setTimeout(() => setAgentActivity('reading'), 1200);
+      setTimeout(() => setAgentActivity('evaluating'), 2000);
+      setTimeout(() => setAgentActivity('generating'), 2700);
     } else if (!loading && agentPhase !== 'idle') {
       setAgentPhase('resolving');
-      setTimeout(() => setAgentPhase('complete'), 800);
-      setTimeout(() => setAgentPhase('idle'), 1200);
+      setTimeout(() => setAgentPhase('complete'), 400);
+      setTimeout(() => setAgentPhase('idle'), 700);
     }
   }, [loading, agentPhase]);
 
@@ -379,29 +417,32 @@ export default function RightAIChatPanel({
 
             {/* Message List */}
             <AnimatePresence>
-              {messages.map((msg, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`
-                      max-w-[85%] rounded-lg px-4 py-2.5 text-sm
-                      ${
-                        msg.role === 'user'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-900 border border-gray-200'
-                      }
-                    `}
+              {messages.map((msg, idx) => {
+                const isLastMessage = idx === messages.length - 1;
+                const isLastAssistantMessage = isLastMessage && msg.role === 'assistant';
+                
+                return (
+                  <motion.div
+                    key={idx}
+                    ref={isLastAssistantMessage ? lastAssistantMessageRef : null}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {msg.content}
-                  </div>
-                </motion.div>
-              ))}
+                    {msg.role === 'user' ? (
+                      <div className="max-w-[85%] rounded-lg px-4 py-2.5 text-sm bg-blue-600 text-white">
+                        {msg.content}
+                      </div>
+                    ) : (
+                      <div className="max-w-[90%] rounded-lg px-4 py-3 text-sm bg-white border-2 border-gray-200 shadow-sm">
+                        <AgentResponseRenderer response={msg.content} isCompact={true} />
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
 
             {/* Agent Thinking Indicator */}
@@ -446,20 +487,46 @@ export default function RightAIChatPanel({
             <div className="border-t border-gray-200 p-4 bg-gray-50">
               <form onSubmit={handleSubmit} className="space-y-2">
                 <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={placeholder}
-                    disabled={loading}
-                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit(e as any);
-                      }
-                    }}
-                  />
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder={placeholder}
+                      disabled={loading}
+                      className="w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmit(e as any);
+                        }
+                      }}
+                    />
+                    {isSupported && (
+                      <button
+                        type="button"
+                        onClick={toggleListening}
+                        disabled={loading}
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors ${
+                          isListening
+                            ? 'bg-red-100 text-red-600 hover:bg-red-200 animate-pulse'
+                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                        }`}
+                        title={isListening ? 'Stop recording' : 'Start voice input'}
+                      >
+                        {isListening ? (
+                          <MicOff className="w-4 h-4" />
+                        ) : (
+                          <Mic className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                    {micError && (
+                      <div className="absolute -top-8 left-0 text-xs text-red-600 bg-red-50 px-2 py-1 rounded shadow-sm z-10 whitespace-nowrap">
+                        {micError}
+                      </div>
+                    )}
+                  </div>
                   <Button
                     type="submit"
                     disabled={loading || !message.trim()}

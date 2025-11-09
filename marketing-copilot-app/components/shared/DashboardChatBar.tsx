@@ -3,7 +3,8 @@
 import { useState, FormEvent } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Send } from 'lucide-react';
+import { Send, Mic, MicOff } from 'lucide-react';
+import { useMicrophone } from '@/lib/hooks/useMicrophone';
 
 // Dashboard-specific suggestions based on current page
 const DASHBOARD_SUGGESTIONS: Record<string, string[]> = {
@@ -55,6 +56,20 @@ export default function DashboardChatBar() {
   
   const suggestions = DASHBOARD_SUGGESTIONS[pathname || '/dashboard'] || DASHBOARD_SUGGESTIONS['/dashboard'];
   const placeholder = DASHBOARD_PLACEHOLDERS[pathname || '/dashboard'] || DASHBOARD_PLACEHOLDERS['/dashboard'];
+
+  const handleTranscript = (text: string) => {
+    setMessage(text);
+  };
+
+  const { isListening, isSupported, startListening, stopListening, error } = useMicrophone(handleTranscript);
+
+  const toggleListening = async () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      await startListening();
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -114,6 +129,30 @@ export default function DashboardChatBar() {
               }
             }}
           />
+          {isSupported && (
+            <button
+              type="button"
+              onClick={toggleListening}
+              disabled={loading}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors ${
+                isListening
+                  ? 'bg-red-100 text-red-600 hover:bg-red-200 animate-pulse'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              }`}
+              title={isListening ? 'Stop recording' : 'Start voice input'}
+            >
+              {isListening ? (
+                <MicOff className="w-4 h-4" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
+            </button>
+          )}
+          {error && (
+            <div className="absolute -top-8 left-0 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+              {error}
+            </div>
+          )}
         </div>
         <Button 
           type="submit" 
